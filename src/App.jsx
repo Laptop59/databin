@@ -36,6 +36,19 @@ class App extends React.Component {
                             type: 'double',
                             value: Infinity
                         },
+                        pack2: {
+                            type: 'package',
+                            value: {
+                                1: {
+                                    type: 'bit',
+                                    value: true
+                                },
+                                2: {
+                                    type: 'byte',
+                                    value: 2
+                                }
+                            }
+                        },
                         data2: {
                             type: 'bit',
                             value: true
