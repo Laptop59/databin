@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg width="50mm" height="50mm" version="1.1" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+ <g>
+  <rect x=".30877" y="10.309" width="39.382" height="39.382" fill="#552300"/>
+  <rect x="5" y="5" width="39.382" height="39.382" fill="#fba363"/>
+  <g stroke="#573923" stroke-width=".893">
+   <rect x="8.2288" y="7.8174" width="33.121" height="9.0517" fill="#f00"/>
+   <rect x="8.2288" y="32.504" width="33.121" height="9.0517" fill="#006cff"/>
+   <rect x="8.2288" y="20.044" width="33.121" height="9.0517" fill="#0f0"/>
+  </g>
+ </g>
+</svg>

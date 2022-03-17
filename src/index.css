@@ -1,13 +1,97 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+:root {
+    --offset: 25px;
+    --titleWrapperWidth: 130px;
+    --tabColor: #002638;
+
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+body, html, #root {
+    width: 100%;
+    height: 100%;
+    margin: 0 0;
+    overflow: hidden;
+}
+
+.DataBinApp {
+    background-color: #c7edff;
+    width: calc(100% - var(--offset));
+    height: calc(100% - var(--offset));
+    margin-left: calc(var(--offset) / 2);
+    margin-top: calc(var(--offset) / 2);
+    outline: 3.5px solid #005e8d;
+}
+
+.DataBinStructure {
+    width: 100%;
+    height: calc(100% - 150px);
+}
+
+.DataBinStructureContent {
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
+    margin-left: 5px;
+    margin-top: 5px;
+    overflow-y: auto;
+}
+
+.DataBinStructureTag {
+    margin-bottom: -1px;
+}
+
+.DataBinStructureTagName {
+    position: relative;
+    top: -10px;
+    font-size: 20px;
+}
+
+.DataBinRibbon {
+    background-color: #0074ad;
+    height: 50px;
+}
+
+.DataBinTitleWrapper {
+    height: 100%;
+    width: var(--titleWrapperWidth);
+    text-align: center;
+    vertical-align: middle;
+}
+
+.DataBinTitle {
+    font-size: 32px;
+    color: white;
+    text-align: center;
+}
+
+.DataBinTabs {
+    width: calc(100% - var(--titleWrapperWidth));
+    position: absolute;
+    top: calc(var(--offset) - 7.5px);
+    left: calc(var(--titleWrapperWidth) + 20px);
+}
+
+.DataBinTabsWrapper {
+    color: white;
+}
+
+.DataBinTab {
+    position: inherit;
+    width: 80px;
+}
+
+.DataBinTab * {
+    background-color: var(--tabColor) !important;
+    border-color: white !important;
+    color: white !important;
+}
+
+.DataBinToolbox {
+    background-color: #77d4ff;
+    height: 100px;
+}
+
+.DataBinStructureIndented {
+    margin-top: 5px;
+    margin-left: 30px;
+    margin-bottom: -37.5px;
 }
