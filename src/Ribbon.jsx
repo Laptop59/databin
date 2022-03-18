@@ -10,9 +10,14 @@ class Ribbon extends React.Component {
                 </div>
                 <div className="DataBinTabs">
                     <div className="DataBinTabsWrapper">
-                        <Tab name="File" items={[
-
-                        ]}/>
+                        <Tab
+                            name="File"
+                            items={{
+                                save: "Save",
+                                load: "Load"
+                            }}
+                            onChange={op => this.props.onFile(op)}
+                        />
                     </div>
                 </div>
             </div>

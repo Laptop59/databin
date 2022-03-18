@@ -7,10 +7,9 @@ const options = [
 ]
 
 class Tab extends React.Component {
-    onSelection(selectedOption) {
+    onSelection(selectedOption, change) {
         const selected = selectedOption.value;
-
-        alert(selected);
+        change(selected);
     }
 
     render() {
@@ -18,7 +17,7 @@ class Tab extends React.Component {
             <Select
                 className="DataBinTab"
                 value={null}
-                onChange={this.onSelection}
+                onChange={opt => this.onSelection(opt, this.props.onChange)}
                 options={options}
                 placeholder={this.props.name}
                 isSearchable={false}

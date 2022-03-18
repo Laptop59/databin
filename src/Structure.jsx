@@ -2,33 +2,43 @@ import React from 'react';
 
 // Import Icons
 import ByteIcon from './images/ByteIcon.jsx';
+import IntIcon from './images/IntIcon.jsx';
 import Bit0Icon from './images/Bit0Icon.jsx';
 import Bit1Icon from './images/Bit1Icon.jsx';
 import DoubleIcon from './images/DoubleIcon.jsx';
 import PackageIcon from './images/PackageIcon.jsx';
+import FileIcon from './images/FileIcon.jsx';
 
 class Structure extends React.Component {
     render() {
         return (
             <div className="DataBinStructure">
                 <div className="DataBinStructureContent">
-                    {this.renderTags(this.props.tags)}
+                    {this.renderTags(this.props.tags, null)}
                 </div>
             </div>
         );
     }
 
-    renderTags(tags) {
+    renderTags(tags, upperkeys) {
         tags = tags || {};
         const keys = Object.keys(tags);
         let result = [], key;
+        upperkeys = upperkeys || [];
 
         for (let i = 0; i < keys.length; i++) {
+            // Create a new tag
             key = tags[keys[i]];
             result.push(
                 <div className="DataBinStructureTag" key={i}>
-                    {this.getIcon(key.type, key.value)}
-                    <span className="DataBinStructureTagName">{keys[i]}: {this.getValue(key.type, key.value)}</span>
+                    <button
+                        className="DataBinStructureTagIcon"
+                        onClick={() => this.props.clickedTag(upperkeys, keys[i])}>
+                        {this.getIcon(key.type, key.value)}
+                    </button>
+                    <span className="DataBinStructureTagName">
+                        {keys[i]}: {this.getValue(key.type, key.value, keys[i], upperkeys)}
+                    </span>
                     <br/>
                 </div>
             );
@@ -38,34 +48,38 @@ class Structure extends React.Component {
     }
 
     getIcon(type, value) {
-        switch(type) {
+        switch (type) {
             case 'byte':
-                return <ByteIcon/>;
+                return <ByteIcon />;
             case 'bit':
                 return (
                     value ?
-                        <Bit1Icon/>
-                    :
-                        <Bit0Icon/>
+                        <Bit1Icon />
+                        :
+                        <Bit0Icon />
                 );
             case 'double':
-                return <DoubleIcon/>;
+                return <DoubleIcon />;
             case 'package':
-                return <PackageIcon/>;
+                return <PackageIcon />;
+            case 'int':
+                return <IntIcon />;
+            case 'file':
+                return <FileIcon />;
             default:
                 throw new Error('Type `' + type + '` does not have an icon.');
         }
     }
 
-    getValue(type, value) {
-        switch(type) {
+    getValue(type, value, name, upperkeys) {
+        switch (type) {
             case 'bit':
                 return value ? '1' : '0';
             case 'package':
-                const tags = this.renderTags(value);
+            case 'file':
                 return (
                     <div className="DataBinStructureIndented">
-                        {this.renderTags(value)}
+                        {this.renderTags(value, upperkeys.concat([name]))}
                     </div>
                 );
             default:
