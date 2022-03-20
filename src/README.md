@@ -1,3 +1,6 @@
+# Planned types
+## Original
+```
 00 bit 0
 01 bit 1
 02 byte
@@ -5,11 +8,15 @@
 04 int
 05 long
 06 double
+0d package
+```
+## Extension I
+```
 07 float
 08 text
 09 ubyte
 0a ushort
 0b uint
 0c ulong
-0d package
 0e any
+```

@@ -53,6 +53,20 @@ function binArrayToTags(array, filename) {
                         value: n >= 0x80000000 ? n - 0x100000000 : n
                     };
                     break;
+                case 0x06: // Double
+                    let buffer = new ArrayBuffer();
+                    let view = new Uint8Array(buffer); // Create a view.
+
+                    for (let j = 0; j < 4; j++) view[j] = array[++i];
+
+                    // Create a double view.
+                    view = new Float64Array(buffer);
+                    // Fetch the double.
+                    pointer[name] = {
+                        type: 'double',
+                        value: view[0]
+                    };
+                    break;
                 case 0x0d: // Package
                     n =
                         (array[++i] << 24) |
