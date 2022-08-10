@@ -1,5 +1,5 @@
 # Databin
-**A tag system that stores data in binary**
+### **A tag system that stores data in binary**
 ## How to start a development server
 **Go to the directory of the project in a terminal and type in:**\
 `npm start`
