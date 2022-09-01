@@ -1,3 +1,7 @@
+// React throws an error if we don't include this:
+//
+/* global BigInt64Array */
+
 function tagsToBin(tags, name) {
     const data = tags[name].value;
     const data_keys = Object.keys(data);
@@ -13,7 +17,8 @@ function tagsToBin(tags, name) {
 
 function binArrayToTags(array, filename) {
     // Check if the header is valid
-    let i, type, n, name, pointer, last_pointers = [], result = {}, packages = [];
+    let i, type, n, name, pointer, last_pointers = [], result = {}, packages = [],
+    buffer, doubleview, longview, view;
 
     if (array[0] === 0x04 &&
         array[1] === 0x02) {
@@ -41,6 +46,15 @@ function binArrayToTags(array, filename) {
                         value: n >= 0x80 ? n - 0x100 : n
                     };
                     break;
+                case 0x03: // Short
+                    n = 
+                        (array[++i] << 8) |
+                        array[++i];
+                    pointer[name] = {
+                        type: 'short',
+                        value: n >= 0x8000 ? n - 0x10000 : n
+                    };
+                    break;
                 case 0x04: // Int
                     n =
                         (array[++i] << 24) |
@@ -53,18 +67,53 @@ function binArrayToTags(array, filename) {
                         value: n >= 0x80000000 ? n - 0x100000000 : n
                     };
                     break;
+                case 0x05: // Long
+                    buffer = new ArrayBuffer(8);
+                    view = new Uint8Array(buffer); // Create a view.
+                    longview = new BigInt64Array(buffer);
+
+                    for (let j = 7; j >= 0; j--) view[j] = array[++i];
+
+                    // Fetch the long.
+                    pointer[name] = {
+                        type: 'long',
+                        value: longview[0]
+                    };
+                    break;
                 case 0x06: // Double
-                    let buffer = new ArrayBuffer();
-                    let view = new Uint8Array(buffer); // Create a view.
+                    buffer = new ArrayBuffer(8);
+                    view = new Uint8Array(buffer); // Create a view.
+                    doubleview = new Float64Array(buffer);
 
-                    for (let j = 0; j < 4; j++) view[j] = array[++i];
+                    for (let j = 7; j >= 0; j--) view[j] = array[++i];
 
-                    // Create a double view.
-                    view = new Float64Array(buffer);
                     // Fetch the double.
                     pointer[name] = {
                         type: 'double',
-                        value: view[0]
+                        value: doubleview[0]
+                    };
+                    break;
+                case 0x07: // Double
+                    buffer = new ArrayBuffer(4);
+                    view = new Uint8Array(buffer); // Create a view.
+                    doubleview = new Float32Array(buffer);
+
+                    for (let j = 3; j >= 0; j--) view[j] = array[++i];
+
+                    // Fetch the float.
+                    pointer[name] = {
+                        type: 'float',
+                        value: doubleview[0]
+                    };
+                    break;
+                case 0x08: // Text
+                    let str = "";
+                    while (array[++i]) {
+                        str += String.fromCharCode(array[i]);
+                    }
+                    pointer[name] = {
+                        type: 'text',
+                        value: str
                     };
                     break;
                 case 0x0d: // Package
@@ -168,11 +217,15 @@ function encodeToName(name) {
 function tagToBinValue(tag) {
     switch (tag.type) {
         case 'byte': return [tag.value & 0xFF];
+        case 'short': return shortToBytes(tag.value)
         case 'int': return intToBytes(tag.value);
+        case 'long': return longToBytes(tag.value);
         case 'double': return doubleToByteArray(tag.value);
         case 'package': return packageToBytes(tag.value);
+        case 'text': return encodeToName(tag.value);
+        case 'float': return floatToByteArray(tag.value);
 
-        default: return [];
+        default: throw new TypeError('Could not encode tag with type `' + tag.type + '`.');
     }
 }
 
@@ -200,10 +253,34 @@ function doubleToByteArray(number) {
     return Array.from(new Int8Array(buffer)).reverse();
 }
 
-const intToBytesAB = (num) => {
+// Inspired from doubleToByteArray
+function floatToByteArray(number) {
+    var buffer = new ArrayBuffer(4);         // Doubles are 4 bytes long, or 32 bits
+    var longNum = new Float32Array(buffer);
+
+    longNum[0] = number;
+
+    return Array.from(new Int8Array(buffer)).reverse();
+}
+
+const intToBytesAB = num => {
     const arr = new ArrayBuffer(4);
     const view = new DataView(arr);
     view.setUint32(0, num, false);
+    return arr;
+}
+
+const longToBytesAB = num => {
+    const arr = new ArrayBuffer(8);
+    const view = new DataView(arr);
+    view.setBigInt64(0, num, false);
+    return arr;
+}
+
+const shortToBytesAB = num => {
+    const arr = new ArrayBuffer(2);
+    const view = new DataView(arr);
+    view.setUint16(0, num, false);
     return arr;
 }
 
@@ -211,6 +288,22 @@ function intToBytes(int) {
     return Array.from(
         new Uint8Array(
             intToBytesAB(int)
+        )
+    );
+}
+
+function shortToBytes(short) {
+    return Array.from(
+        new Uint8Array(
+            shortToBytesAB(short)
+        )
+    );
+}
+
+function longToBytes(long) {
+    return Array.from(
+        new Uint8Array(
+            longToBytesAB(long)
         )
     );
 }

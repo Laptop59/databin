@@ -1,5 +1,5 @@
 # Planned types
-## Original
+## Done
 ```
 00 bit 0
 01 bit 1
@@ -8,12 +8,12 @@
 04 int
 05 long
 06 double
-0d package
-```
-## Extension I
-```
 07 float
 08 text
+0d package
+```
+## Yet To Do
+```
 09 ubyte
 0a ushort
 0b uint

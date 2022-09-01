@@ -8,6 +8,10 @@ import Bit1Icon from './images/Bit1Icon.jsx';
 import DoubleIcon from './images/DoubleIcon.jsx';
 import PackageIcon from './images/PackageIcon.jsx';
 import FileIcon from './images/FileIcon.jsx';
+import ShortIcon from './images/ShortIcon.jsx';
+import LongIcon from './images/LongIcon.jsx';
+import TextIcon from './images/TextIcon.jsx';
+import FloatIcon from './images/FloatIcon.jsx';
 
 class Structure extends React.Component {
     render() {
@@ -18,6 +22,11 @@ class Structure extends React.Component {
                 </div>
             </div>
         );
+    }
+
+    componentDidMount() {
+        // This runs once the rendering is done.
+        if (this.props.beforeTry) this.props.beforeTry();
     }
 
     renderTags(tags, upperkeys) {
@@ -64,8 +73,16 @@ class Structure extends React.Component {
                 return <PackageIcon />;
             case 'int':
                 return <IntIcon />;
+            case 'short':
+                return <ShortIcon />;
+            case 'long':
+                return <LongIcon />;
+            case 'text':
+                return <TextIcon />;
             case 'file':
                 return <FileIcon />;
+            case 'float':
+                return <FloatIcon />;
             default:
                 throw new Error('Type `' + type + '` does not have an icon.');
         }
@@ -75,6 +92,8 @@ class Structure extends React.Component {
         switch (type) {
             case 'bit':
                 return value ? '1' : '0';
+            case 'long':
+                return value.toString();
             case 'package':
             case 'file':
                 return (

@@ -30,7 +30,7 @@ class Dialog extends React.Component {
             );
         }
 
-        result.push(
+        if (!this.props.noCancel) result.push(
             <button
                 onClick={() => this.props.onClick(null)}
                 key={-1}

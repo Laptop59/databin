@@ -1,6 +1,6 @@
 import TypeIcon from "./TypeIcon";
 
-const Bit0Icon = () => (
+const DoubleIcon = () => (
    <TypeIcon
       primary="#fb009f"
       secondary="#bd0078"
@@ -8,4 +8,4 @@ const Bit0Icon = () => (
    />
 );
 
-export default Bit0Icon;
+export default DoubleIcon;

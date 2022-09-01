@@ -4,8 +4,13 @@ import Ribbon from './Ribbon';
 import Structure from './Structure';
 import Dialog from './Dialog';
 import FileInput from './FileInput';
+import ErrorBoundary from './ErrorBoundary';
 
 import {SaveFile, SelectFile, LoadFile} from './SaveLoad';
+
+// React throws an error if we don't include this:
+//
+/* global BigInt */
 
 class App extends React.Component {
     constructor(props) {
@@ -20,43 +25,77 @@ class App extends React.Component {
                     type: 'file',
                     value: {}
                 }
+            },
+            prev: {
+                selected: 'byte',
+                title: 'Untitled',
+                tags: {}
             }
         }
     }
 
     render() {
+        if (window.location.href.endsWith('#crash')) throw new Error('The crash was done manually.');
         return (
             <div className="DataBinApp">
-                <Ribbon
-                    onFile={x => {
-                        if (x === 'save') {
-                            SaveFile(this.state.tags, this.state.title);
-                        } else if (x === 'load') {
-                            SelectFile();
+                <ErrorBoundary cover="DataBinRibbon" onCrash={() => this.tryToSave()}>
+                    <Ribbon
+                        onFile={x => {
+                            if (x === 'save') {
+                                SaveFile(this.state.tags, this.state.title);
+                            } else if (x === 'load') {
+                                SelectFile();
+                            }
+                        }}
+                    />
+                </ErrorBoundary>
+                <ErrorBoundary cover="DataBinToolbox" onCrash={() => this.tryToSave()}>
+                    <Toolbox 
+                        selected={this.state.selected}
+                        onSelect={type => {
+                            this.saveToPrev();
+                            if (type === 'long' && typeof BigInt === 'undefined') {
+                                this.setState({dialog:
+                                    <Dialog
+                                        text="Your browser does not support BigInt, which is important."
+                                        buttons={
+                                            ['OK']
+                                        }
+                                        onClick={() => {
+                                            this.setState({dialog: null});
+                                        }}
+                                        noCancel={true}
+                                    />
+                                });
+                                return;
+                            }
+                            this.setState({selected: type})
+                        }}
+                    />
+                </ErrorBoundary>
+                <ErrorBoundary cover="DataBinStructure" onCrash={() => this.tryToSave()}>
+                    <Structure beforeTry={() => this.saveToPrev()}
+                        tags={this.state.tags}
+                        clickedTag={(outerkeys, name) =>
+                            this.clickedTag(outerkeys, name)
                         }
-                    }}
-                />
-                <Toolbox 
-                    selected={this.state.selected}
-                    onSelect={type => this.setState({selected: type})}
-                />
-                <Structure
-                    tags={this.state.tags}
-                    clickedTag={(outerkeys, name) =>
-                        this.clickedTag(outerkeys, name)
-                    }
-                />
-                {this.state.dialog}
-                <FileInput
-                    onChange={async files => {
-                        let result = await LoadFile(files);
-                        if (!result) return;
-                        this.setState({
-                            tags: result,
-                            title: Object.keys(result)[0]
-                        });
-                    }}
-                />
+                    />
+                </ErrorBoundary>
+                <ErrorBoundary conver="DataBinDialogBG" onCrash={() => this.tryToSave()}>
+                    {this.state.dialog}
+                </ErrorBoundary>
+                <ErrorBoundary cover="DataBinInputFileButton" onCrash={() => this.tryToSave()}>
+                    <FileInput
+                        onChange={async files => {
+                            let result = await LoadFile(files);
+                            if (!result) return;
+                            this.setState({
+                                tags: result,
+                                title: Object.keys(result)[0]
+                            });
+                        }}
+                    />
+                </ErrorBoundary>
             </div>
         );
     }
@@ -95,15 +134,11 @@ class App extends React.Component {
                                 }
                                 navigated[this.state.title].value[tagname] = {
                                     type: this.state.selected,
-                                    value: this.toValidValue(0, this.state.selected)
+                                    value: this.toValidValue(0, this.state.selected, true)
                                 };
                                 this.setState(tags);
                             } else if (i === 1) {
-                                let change = prompt('Change the name of the file:');
-                                if (change && !validString(change)) {
-                                    alert('A name of an element cannot contain unicode.');
-                                    return;
-                                }
+                                let change = prompt('Change the name of the file:', this.state.title);
                                 if (change) {
                                     // Rename the file.
                                     const file = tags[this.state.title];
@@ -130,8 +165,8 @@ class App extends React.Component {
                     ]}
                     onClick={
                         i => {
-                            let todo = this.buttonClicked(i, 1);
-                            if (typeof todo === 'number' && i === 0) {
+                            let todo = this.buttonClicked(i, 1, navigated[name].type);
+                            if ((typeof todo === 'number' || typeof todo === 'string') && i === 0) {
                                 navigated[name].value = this.toValidValue(todo, navigated[name].type);
                                 this.setState(tags);
                             } else if (typeof todo === 'string' && i === 1) {
@@ -159,7 +194,7 @@ class App extends React.Component {
                                 }
                                 navigated[name].value[tagname] = {
                                     type: this.state.selected,
-                                    value: this.toValidValue(0, this.state.selected)
+                                    value: this.toValidValue(0, this.state.selected, true)
                                 }
                                 this.setState(tags);
                             }
@@ -171,13 +206,17 @@ class App extends React.Component {
         }
     }
 
-    buttonClicked(i, type) {
+    buttonClicked(i, type, tagtype) {
         this.setState({ dialog: null });
         if (type === 1) {
             if (i === 0) { // If EDIT was clicked
                 const newvalue = prompt('Enter new value for the tag:');
                 if (newvalue) {
-                    const n = Number(newvalue);
+                    let n;
+                    if (tagtype === 'long' || tagtype === 'ulong' || tagtype === 'text')
+                        n = newvalue;
+                    else
+                        n = Number(newvalue);
                     return n;
                 }
             } else if (i === 1) { // Rename
@@ -191,7 +230,7 @@ class App extends React.Component {
         }
     }
 
-    toValidValue(value, type) {
+    toValidValue(value, type, newtag) {
         let val;
         if (
             typeof value === 'object' &&
@@ -200,20 +239,40 @@ class App extends React.Component {
         ) {
             return 0;
         }
+        if (newtag && type === 'text') return '';
         switch (type) {
             case 'byte':
                 val = ((value + 0x80) & 0xFF) - 0x80;
+                break;
+            case 'short':
+                val = ((value + 0x8000) & 0xFFFF) - 0x8000;
                 break;
             case 'int':
                 // JavaScript manages bitwise operations to 32-bit numbers.
                 val = (value >>> 0) | 0;
                 break;
+            case 'long':
+                if (isNaN(Number(value)) || !isFinite(Number(value))) return 0;
+                // Use BigInt
+                const b = BigInt("0x8000000000000000");
+                return ((BigInt(value) + b) % BigInt("0x10000000000000000")) - b;
             case 'double':
                 val = Number(value);
                 break;
+            case 'float':
+                // Convert it to a double first.
+                val = this.toValidValue(value, 'double', true);
+                // Lose precision.
+                let buffer = new ArrayBuffer(4); // A float (single) has 4 bytes.
+                let view = new Float32Array(buffer);
+                view[0] = val;
+
+                return view[0];
             case 'bit':
                 val = !!value;
                 break;
+            case 'text':
+                return value + '';
             case 'package':
                 return {};
             default:
@@ -226,6 +285,26 @@ class App extends React.Component {
             val = 0;
         }
         return val;
+    }
+
+    tryToSave() {
+        // Try to save to local storage for easy access to restore later.
+        localStorage.setItem('DataBin.beforeCrashedState', {
+            tags: this.state.prev.tags,
+            title: this.state.prev.title,
+            selected: this.state.prev.selected
+        });
+    }
+
+    saveToPrev() {
+        // Save before a potiential crash.
+        this.setState({
+            prev: {
+                tags: this.state.tags,
+                title: this.state.title,
+                selected: this.state.selected
+            }
+        })
     }
 }
 

@@ -6,13 +6,21 @@ import BitIcon from './images/Bit0Icon.jsx';
 import DoubleIcon from './images/DoubleIcon.jsx';
 import PackageIcon from './images/PackageIcon.jsx';
 import IntIcon from './images/IntIcon.jsx';
+import ShortIcon from './images/ShortIcon.jsx';
+import LongIcon from './images/LongIcon.jsx';
+import TextIcon from './images/TextIcon.jsx';
+import FloatIcon from './images/FloatIcon.jsx';
 
 const types = {
     bit: <BitIcon/>,
     byte: <ByteIcon/>,
+    short: <ShortIcon/>,
+    int: <IntIcon/>,
+    long: <LongIcon/>,
     double: <DoubleIcon/>,
+    float: <FloatIcon/>,
+    text: <TextIcon/>,
     package: <PackageIcon/>,
-    int: <IntIcon/>
 };
 
 class Toolbox extends React.Component {
