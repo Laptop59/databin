@@ -11,17 +11,37 @@ class Ribbon extends React.Component {
                 <div className="DataBinTabs">
                     <div className="DataBinTabsWrapper">
                         <Tab
+                            className="DataBinTabFile"
                             name="File"
                             items={{
                                 save: "Save",
                                 load: "Load"
                             }}
+                            file={true}
                             onChange={op => this.props.onFile(op)}
+                        />
+                        <Tab
+                            className="DataBinTabLang"
+                            styles={{float: 'right'}}
+                            name="Language"
+                            file={false}
+                            items={this.toFriendly(this.props.languages)}
+                            onChange={l => this.props.changeLanguage(l)}
                         />
                     </div>
                 </div>
             </div>
         )
+    }
+
+    toFriendly(lang) {
+        const keys = Object.keys(lang)
+        const names = Object.values(lang).map(x => x.name) || "???";
+        const langs = {};
+        for (let i = 0; i < names.length; i++) {
+            langs[keys[i]] = names[i]
+        }
+        return langs;
     }
 }
 

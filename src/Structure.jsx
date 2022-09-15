@@ -1,17 +1,10 @@
 import React from 'react';
 
 // Import Icons
-import ByteIcon from './images/ByteIcon.jsx';
-import IntIcon from './images/IntIcon.jsx';
 import Bit0Icon from './images/Bit0Icon.jsx';
 import Bit1Icon from './images/Bit1Icon.jsx';
-import DoubleIcon from './images/DoubleIcon.jsx';
-import PackageIcon from './images/PackageIcon.jsx';
 import FileIcon from './images/FileIcon.jsx';
-import ShortIcon from './images/ShortIcon.jsx';
-import LongIcon from './images/LongIcon.jsx';
-import TextIcon from './images/TextIcon.jsx';
-import FloatIcon from './images/FloatIcon.jsx';
+import { Types } from './Toolbox.jsx';
 
 class Structure extends React.Component {
     render() {
@@ -29,7 +22,7 @@ class Structure extends React.Component {
         if (this.props.beforeTry) this.props.beforeTry();
     }
 
-    renderTags(tags, upperkeys) {
+    renderTags(tags, upperkeys, noname) {
         tags = tags || {};
         const keys = Object.keys(tags);
         let result = [], key;
@@ -46,7 +39,7 @@ class Structure extends React.Component {
                         {this.getIcon(key.type, key.value)}
                     </button>
                     <span className="DataBinStructureTagName">
-                        {keys[i]}: {this.getValue(key.type, key.value, keys[i], upperkeys)}
+                        {noname ? '' : keys[i] + ": "}{this.getValue(key.mini || false, key.type, key.value, keys[i], upperkeys)}
                     </span>
                     <br/>
                 </div>
@@ -58,8 +51,8 @@ class Structure extends React.Component {
 
     getIcon(type, value) {
         switch (type) {
-            case 'byte':
-                return <ByteIcon />;
+            case 'file':
+                return <FileIcon />
             case 'bit':
                 return (
                     value ?
@@ -67,28 +60,13 @@ class Structure extends React.Component {
                         :
                         <Bit0Icon />
                 );
-            case 'double':
-                return <DoubleIcon />;
-            case 'package':
-                return <PackageIcon />;
-            case 'int':
-                return <IntIcon />;
-            case 'short':
-                return <ShortIcon />;
-            case 'long':
-                return <LongIcon />;
-            case 'text':
-                return <TextIcon />;
-            case 'file':
-                return <FileIcon />;
-            case 'float':
-                return <FloatIcon />;
             default:
+                if (Types[type]) return Types[type];
                 throw new Error('Type `' + type + '` does not have an icon.');
         }
     }
 
-    getValue(type, value, name, upperkeys) {
+    getValue(mini, type, value, name, upperkeys) {
         switch (type) {
             case 'bit':
                 return value ? '1' : '0';
@@ -96,11 +74,24 @@ class Structure extends React.Component {
                 return value.toString();
             case 'package':
             case 'file':
-                return (
-                    <div className="DataBinStructureIndented">
-                        {this.renderTags(value, upperkeys.concat([name]))}
-                    </div>
-                );
+            case 'byte_array':
+            case 'short_array':
+            case 'int_array':
+            case 'long_array':
+            case 'float_array':
+            case 'double_array':
+            case 'ubyte_array':
+            case 'ushort_array':
+            case 'uint_array':
+            case 'ulong_array':
+                const count = Object.keys(value).length;
+                return (<>
+                    [{count} tag{count !== 1 && "s"}]
+                    &nbsp;<button className="DataBinStructureButton" onClick={() => this.props.miniTag(upperkeys, name)}><div>{'▼▲'[+mini]}</div></button>
+                    {!mini && <div className="DataBinStructureIndented">
+                        {this.renderTags(value, upperkeys.concat([name]), type.split("_array").length > 1)}
+                    </div>}
+                </>);
             default:
                 return value;
         }

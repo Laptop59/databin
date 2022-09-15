@@ -1,0 +1,25 @@
+{
+    "databin.tags.nobigint": "Your browser does not support BigInt, which is important.",
+    "databin.tags.editfile": "What do you want to do with the file?",
+    "databin.tags.tagname": "Name of the tag: (hello ;))",
+    "databin.tags.nounicode": "A name of an element cannot contain unicode.",
+    "databin.tags.renamefile": "Change the name of the file:",
+    "databin.tags.edittag": "What do you want to do with this tag?",
+    "databin.tags.addtags": "How many tags do you want to add?",
+    "databin.tags.deletetag": "Are you sure you want to delete this tag?",
+
+    "databin.buttons.ok": "OK",
+    "databin.buttons.addtag": "Add Tag",
+    "databin.buttons.additem": "Add {item}",
+    "databin.buttons.rename": "Rename",
+    "databin.buttons.edit": "Edit",
+    "databin.buttons.changetype": "Change type to selected",
+    "databin.buttons.delete": "Delete",
+
+    "databin.ribbon.file": "File",
+    "databin.ribbon.load": "Load",
+    "databin.ribbon.save": "Save",
+
+    "databin.categories.standard": "Standard",
+    "databin.categories.array": "Arrays"
+}

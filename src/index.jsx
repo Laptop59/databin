@@ -1,14 +1,16 @@
 import React from 'react';
-import ReactDom from 'react-dom';
-import App from './App';
+import { createRoot } from 'react-dom/client';
+import AppWrapper from './AppWrapper';
 import ErrorBoundary from './ErrorBoundary';
 import './index.css';
 
-ReactDom.render(
+const container = document.getElementById('root');
+const root = createRoot(container);
+
+root.render(
     <React.StrictMode>
         <ErrorBoundary cover="DataBinApp">
-            <App/>
+            <AppWrapper/>
         </ErrorBoundary>
-    </React.StrictMode>,
-    document.getElementById('root')
+    </React.StrictMode>
 );

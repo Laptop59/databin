@@ -1,4 +1,5 @@
 import React from 'react';
+
 import Toolbox from './Toolbox';
 import Ribbon from './Ribbon';
 import Structure from './Structure';
@@ -7,10 +8,17 @@ import FileInput from './FileInput';
 import ErrorBoundary from './ErrorBoundary';
 
 import {SaveFile, SelectFile, LoadFile} from './SaveLoad';
+import { FormattedMessage, createIntl, createIntlCache } from 'react-intl';
 
 // React throws an error if we don't include this:
 //
 /* global BigInt */
+
+const Messages = {
+    OK: <FormattedMessage id="databin.buttons.ok" defaultMessage="OK" description="Button that represents OK."/>,
+    ADD_TAG: <FormattedMessage id="databin.buttons.addtag" defaultMessage="Add tag" description="Button that represents adding a tag."/>,
+    RENAME: <FormattedMessage id="databin.buttons.rename" defaultMessage="Rename" description="Button that represents renaming."/>,
+}
 
 class App extends React.Component {
     constructor(props) {
@@ -23,7 +31,8 @@ class App extends React.Component {
             tags: {
                 Untitled: {
                     type: 'file',
-                    value: {}
+                    value: {},
+                    mini: false,
                 }
             },
             prev: {
@@ -40,6 +49,8 @@ class App extends React.Component {
             <div className="DataBinApp">
                 <ErrorBoundary cover="DataBinRibbon" onCrash={() => this.tryToSave()}>
                     <Ribbon
+                        changeLanguage={x => this.props.changeLanguage(x)}
+                        languages={this.props.languages}
                         onFile={x => {
                             if (x === 'save') {
                                 SaveFile(this.state.tags, this.state.title);
@@ -54,12 +65,16 @@ class App extends React.Component {
                         selected={this.state.selected}
                         onSelect={type => {
                             this.saveToPrev();
-                            if (type === 'long' && typeof BigInt === 'undefined') {
+                            if ( (type === 'long' || type === 'long_array') && typeof BigInt === 'undefined') {
                                 this.setState({dialog:
                                     <Dialog
-                                        text="Your browser does not support BigInt, which is important."
+                                        text={<FormattedMessage
+                                            id="databin.tags.nobigint"
+                                            defaultMessage="Your browser does not support BigInt, which is important."
+                                            description="A message to tell the user that BigInt is not supported."
+                                        />}
                                         buttons={
-                                            ['OK']
+                                            [Messages.OK]
                                         }
                                         onClick={() => {
                                             this.setState({dialog: null});
@@ -78,6 +93,9 @@ class App extends React.Component {
                         tags={this.state.tags}
                         clickedTag={(outerkeys, name) =>
                             this.clickedTag(outerkeys, name)
+                        }
+                        miniTag={(outerkeys, name) =>
+                            this.miniTag(outerkeys, name)
                         }
                     />
                 </ErrorBoundary>
@@ -102,101 +120,151 @@ class App extends React.Component {
 
     clickedTag(outerkeys, name) {
         let tags = this.state.tags;
+        let navigated = tags, isInArray = false;
+        // Find the actual tags
+        for (let i = 0; i < outerkeys.length; i++) {
+            // Navigate
+            isInArray = isInArray || navigated[outerkeys[i]].type.split("_array").length > 1;
+            navigated = navigated[outerkeys[i]].value;
+        }
+        // Send off navigated[name] and other things.
+        this.manageTag(navigated, name, tags, {isInArray});
+    }
+
+    miniTag(outerkeys, name) {
+        let {tags} = this.state;
         let navigated = tags;
         // Find the actual tags
         for (let i = 0; i < outerkeys.length; i++) {
             // Navigate
             navigated = navigated[outerkeys[i]].value;
         }
-        // Send off navigated[name] and other things.
-        this.manageTag(navigated, name, tags);
+        navigated[name].mini = !navigated[name].mini;
+        this.setState({tags})
     }
 
-    manageTag(navigated, name, tags) {
+    manageTag(navigated, name, tags, extra) {
+        const cache = createIntlCache()
+        const intl = createIntl({
+            locale: this.props.locale || "en-us",
+            messages: this.props.messages || {}
+        }, cache)
         // Do different things depending on the type.
-        if (navigated[name].type === 'file') {
+        const n = navigated[name];
+        if (n.type === 'file') {
             this.setState({
                 dialog: <Dialog
-                    text="What do you want to do with the file?"
+                    text={<FormattedMessage
+                        id="databin.tags.editfile"
+                        defaultMessage="What do you want to do with this file?"
+                        description="A message to ask the user what to do with the file."
+                    />}
                     buttons={[
-                        "Add Tag",
-                        "Rename"
+                        Messages.ADD_TAG,
+                        Messages.RENAME
                     ]}
                     onClick={
                         i => {
                             this.setState({dialog: null});
-                            if (i === 0) {
-                                const tagname = prompt('Name of the tag:');
-                                if (!tagname) return;
-                                if (!validString(tagname)) {
-                                    alert('A name of an element cannot contain unicode.');
-                                    return;
-                                }
-                                navigated[this.state.title].value[tagname] = {
-                                    type: this.state.selected,
-                                    value: this.toValidValue(0, this.state.selected, true)
-                                };
-                                this.setState(tags);
-                            } else if (i === 1) {
-                                let change = prompt('Change the name of the file:', this.state.title);
-                                if (change) {
-                                    // Rename the file.
-                                    const file = tags[this.state.title];
-                                    tags = {};
-                                    tags[change] = file;
-                                    console.log(tags)
-                                    this.setState({ title: change, tags });
-                                }
+                            switch(i) {
+                                case 0:
+                                    const tagname = prompt(intl.formatMessage({id: "databin.tags.tagname", defaultMessage: "Name of the tag:", description: "Asking the name of the tag."}));
+                                    if (!tagname) return;
+                                    if (!validString(tagname)) {
+                                        alert('A name of an element cannot contain unicode.');
+                                        return;
+                                    }
+                                    navigated[this.state.title].value[tagname] = {
+                                        type: this.state.selected,
+                                        value: this.toValidValue(0, this.state.selected, true),
+                                        mini: false
+                                    };
+                                    this.setState(tags);
+                                    break;
+                                case 1:
+                                    let change = prompt('Change the name of the file:', this.state.title);
+                                    if (change) {
+                                        // Rename the file.
+                                        const file = tags[this.state.title];
+                                        tags = {};
+                                        tags[change] = file;
+                                        console.log(tags)
+                                        this.setState({ title: change, tags });
+                                    }
+                                    break;
+                                default:
                             }
                         }
                     }
                 />
             });
         } else {
+            const ntype = n.type.split("_array")[0];
+            const {isInArray} = extra;
             this.setState({
                 dialog: <Dialog
                     text="What do you want to do with this tag?"
                     buttons={[
-                        "Edit",
-                        "Rename",
-                        "Change Type To Selected",
+                        !this.isTagContainer(n.type) && "Edit",
+                        !isInArray && "Rename",
+                        !isInArray && "Change Type To Selected",
                         "Delete",
-                        navigated[name].type === 'package' && "Add Tag"
+                        n.type === 'package' && "Add Tag",
+                        n.type.split("_array").length > 1 && "Add " + (ntype.toUpperCase())
                     ]}
                     onClick={
                         i => {
                             let todo = this.buttonClicked(i, 1, navigated[name].type);
-                            if ((typeof todo === 'number' || typeof todo === 'string') && i === 0) {
-                                navigated[name].value = this.toValidValue(todo, navigated[name].type);
-                                this.setState(tags);
-                            } else if (typeof todo === 'string' && i === 1) {
-                                const tag = navigated[name];
-                                delete navigated[name];
-                                navigated[todo] = tag;
-                                this.setState(tags);
-                            } else if (i === 2) {
-                                const type = this.state.selected;
+                            switch (i) {
+                                case 0:
+                                    if (['string','number'].includes(typeof todo)) {
+                                        navigated[name].value = this.toValidValue(todo, navigated[name].type);
+                                        this.setState(tags);
+                                    }
+                                break;
+                                case 1:
+                                    if (typeof todo === 'string') {
+                                        const tag = navigated[name];
+                                        delete navigated[name];
+                                        navigated[todo] = tag;
+                                        this.setState(tags);
+                                    }
+                                break;
+                                case 2:
+                                    const type = this.state.selected;
 
-                                if (type === navigated[name].type) return;
+                                    if (type === navigated[name].type) return;
 
-                                navigated[name].type = type;
-                                navigated[name].value = this.toValidValue(navigated[name].value, type);
-                            } else if (i === 3) {
-                                const confirmed = window.confirm('Are you sure you want to delete this tag?');
+                                    navigated[name].type = type;
+                                    navigated[name].value = this.toValidValue(navigated[name].value, type);
+                                    break;
+                                case 3:
+                                    const confirmed = window.confirm('Are you sure you want to delete this tag?');
 
-                                if (confirmed) delete navigated[name];
-                            } else if (i === 4) {
-                                const tagname = prompt('Name of the tag:');
-                                if (!tagname) return;
-                                if (!validString(tagname)) {
-                                    alert('A name of an element cannot contain unicode.');
-                                    return;
-                                }
-                                navigated[name].value[tagname] = {
-                                    type: this.state.selected,
-                                    value: this.toValidValue(0, this.state.selected, true)
-                                }
-                                this.setState(tags);
+                                    if (confirmed) delete navigated[name];
+                                    break;
+                                case 4: 
+                                    const tagname = prompt('Name of the tag:');
+                                    if (!tagname) return;
+                                    if (!validString(tagname)) {
+                                        alert('A name of an element cannot contain unicode.');
+                                        return;
+                                    }
+                                    navigated[name].value[tagname] = {
+                                        type: this.state.selected,
+                                        value: this.toValidValue(0, this.state.selected, true)
+                                    }
+                                    this.setState(tags);
+                                    break;
+                                case 5:
+                                    const t = navigated[name].type.split("_array")[0];
+                                    const n = Math.min(+prompt("How many tags do you want to add?") || 0, 0xFFFFFFFF);
+                                    for (let i = 0; i < n; i++) navigated[name].value[""+Object.keys(navigated[name].value).length] = {
+                                        type: t,
+                                        value: this.toValidValue(0, t, true)
+                                    }
+                                    break;
+                                default:
                             }
                         }
                     }
@@ -244,18 +312,31 @@ class App extends React.Component {
             case 'byte':
                 val = ((value + 0x80) & 0xFF) - 0x80;
                 break;
+            case 'ubyte':
+                val = value & 0xFF;
+                break;
             case 'short':
                 val = ((value + 0x8000) & 0xFFFF) - 0x8000;
+                break;
+            case 'ushort':
+                val = value & 0xFFFF;
                 break;
             case 'int':
                 // JavaScript manages bitwise operations to 32-bit numbers.
                 val = (value >>> 0) | 0;
+                break;
+            case 'uint':
+                val = value >>> 0;
                 break;
             case 'long':
                 if (isNaN(Number(value)) || !isFinite(Number(value))) return 0;
                 // Use BigInt
                 const b = BigInt("0x8000000000000000");
                 return ((BigInt(value) + b) % BigInt("0x10000000000000000")) - b;
+            case 'ulong':
+                if (isNaN(Number(value)) || !isFinite(Number(value))) return 0;
+                // Use BigInt
+                return BigInt(value) % BigInt("0x10000000000000000");
             case 'double':
                 val = Number(value);
                 break;
@@ -276,6 +357,7 @@ class App extends React.Component {
             case 'package':
                 return {};
             default:
+                if (type.split("_array").length > 1) return {};
                 val = value;
         }
         if (
@@ -289,11 +371,11 @@ class App extends React.Component {
 
     tryToSave() {
         // Try to save to local storage for easy access to restore later.
-        localStorage.setItem('DataBin.beforeCrashedState', {
+        localStorage.setItem('DataBin.beforeCrashedState', JSON.stringify({
             tags: this.state.prev.tags,
             title: this.state.prev.title,
             selected: this.state.prev.selected
-        });
+        }));
     }
 
     saveToPrev() {
@@ -306,10 +388,14 @@ class App extends React.Component {
             }
         })
     }
+
+    isTagContainer(type) {
+        return type === "package" || type.split("_array") > 1
+    }
 }
 
 function validString(s) {
-    return !(/[^\u0000-\u00ff]/.test(s));
+    return !(/[^\0-\u00ff]/.test(s));
 }
 
 export default App;

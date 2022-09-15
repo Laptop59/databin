@@ -1,6 +1,35 @@
 // React throws an error if we don't include this:
 //
 /* global BigInt64Array */
+/* global BigUint64Array */
+
+/**
+ * Enum for tag types
+ * @readonly
+ * @enum {string}
+ */
+const tag_types = {
+    0x00: "bit",
+    0x01: "bit",
+    0x02: "byte",
+    0x03: "short",
+    0x04: "int",
+    0x05: "long",
+    0x06: "double",
+    0x07: "float",
+    0x08: "text",
+    0x09: "ubyte",
+    0x0a: "ushort",
+    0x0b: "uint",
+    0x0c: "ulong",
+    0x0d: "package",
+    0x0e: "byte_array",
+    0x0f: "short_array",
+    0x10: "int_array",
+    0x11: "long_array",
+    0x12: "float_array",
+    0x13: "double_array"
+}
 
 function tagsToBin(tags, name) {
     const data = tags[name].value;
@@ -17,8 +46,88 @@ function tagsToBin(tags, name) {
 
 function binArrayToTags(array, filename) {
     // Check if the header is valid
-    let i, type, n, name, pointer, last_pointers = [], result = {}, packages = [],
-    buffer, doubleview, longview, view;
+    let name, pointer, last_pointers = [], result = {}, packages = [], i, type, o;
+
+    function convertTo(type, hex) {
+        let n, buffer, view, longview, doubleview, floatview, tag, str;
+        switch (type) {
+            case 'bit': return {type: 'bit', value: hex};
+            case 'byte':
+                n = array[++i];
+                return {type: 'byte', value: n >= 0x80 ? n - 0x100 : n};
+            case 'short': 
+                n = (array[++i] << 8) | array[++i];
+                return {type: 'short', value: n >= 0x8000 ? n - 0x10000 : n};
+            case 'int': 
+                n = (array[++i] << 24) | (array[++i] << 16) | (array[++i] << 8) | array[++i];
+                return {type: 'int', value: n >= 0x80000000 ? n - 0x100000000 : n};
+            case 'long':
+                buffer = new ArrayBuffer(8);
+                view = new Uint8Array(buffer); // Create a view.
+                longview = new BigInt64Array(buffer);
+                for (let j = 7; j >= 0; j--) view[j] = array[++i];
+                // Fetch the long.
+                return {type: 'long', value: longview[0]};
+            case 'double':
+                buffer = new ArrayBuffer(8);
+                view = new Uint8Array(buffer); // Create a view.
+                doubleview = new Float64Array(buffer);
+                for (let j = 7; j >= 0; j--) view[j] = array[++i];
+                // Fetch the double.
+                return {type: 'double', value: doubleview[0]};
+            case 'float':
+                buffer = new ArrayBuffer(4);
+                view = new Uint8Array(buffer); // Create a view.
+                floatview = new Float32Array(buffer);
+                for (let j = 3; j >= 0; j--) view[j] = array[++i];
+                // Fetch the float.
+                return {type: 'float', value: floatview[0]};
+            case 'package':
+                n = (array[++i] << 24) | (array[++i] << 16) | (array[++i] << 8) | array[++i];
+                pointer[name] = {
+                    type: 'package',
+                    value: {}
+                };
+                last_pointers.push(pointer);
+                pointer = pointer[name].value;
+                packages.push(n);
+                return false;
+            case 'text':
+                str = "";
+                while (array[++i]) {
+                    str += String.fromCharCode(array[i]);
+                }
+                return {type: 'text', value: str};  
+            case 'ubyte':
+                n = array[++i];
+                return {type: 'ubyte', value: n};
+            case 'ushort': 
+                n = (array[++i] << 8) | array[++i];
+                return {type: 'ushort', value: n};
+            case 'uint': 
+                n = (array[++i] << 24) | (array[++i] << 16) | (array[++i] << 8) | array[++i];
+                return {type: 'uint', value: n + (n < 0 ? 0x100000000 : 0x000000000)};
+            case 'ulong':
+                buffer = new ArrayBuffer(8);
+                view = new Uint8Array(buffer); // Create a view.
+                longview = new BigUint64Array(buffer);
+                for (let j = 7; j >= 0; j--) view[j] = array[++i];
+                // Fetch the long.
+                return {type: 'ulong', value: longview[0]};
+            default:
+                if (type.split('_array').length > 1) {
+                    n = (array[++i] << 24) | (array[++i] << 16) | (array[++i] << 8) | array[++i];
+                    tag = {
+                        type,
+                        value: {}
+                    };
+                    for (let j = 0; j < n; j++) {
+                        tag.value[''+j] = convertTo(type.split('_array')[0]);
+                    }
+                    return tag;
+                }
+        }
+    }
 
     if (array[0] === 0x04 &&
         array[1] === 0x02) {
@@ -30,109 +139,13 @@ function binArrayToTags(array, filename) {
             name = ''
             i++;
             i = extractName(i);
-            switch (type) {
-                case 0x00: // Bit (0)
-                case 0x01: // Bit (1)
-                    pointer[name] = {
-                        type: 'bit',
-                        value: !!type
-                    };
-                    break;
-                case 0x02: // Byte
-                    i++;
-                    n = array[i];
-                    pointer[name] = {
-                        type: 'byte',
-                        value: n >= 0x80 ? n - 0x100 : n
-                    };
-                    break;
-                case 0x03: // Short
-                    n = 
-                        (array[++i] << 8) |
-                        array[++i];
-                    pointer[name] = {
-                        type: 'short',
-                        value: n >= 0x8000 ? n - 0x10000 : n
-                    };
-                    break;
-                case 0x04: // Int
-                    n =
-                        (array[++i] << 24) |
-                        (array[++i] << 16) |
-                        (array[++i] << 8) |
-                        array[++i];
-
-                    pointer[name] = {
-                        type: 'int',
-                        value: n >= 0x80000000 ? n - 0x100000000 : n
-                    };
-                    break;
-                case 0x05: // Long
-                    buffer = new ArrayBuffer(8);
-                    view = new Uint8Array(buffer); // Create a view.
-                    longview = new BigInt64Array(buffer);
-
-                    for (let j = 7; j >= 0; j--) view[j] = array[++i];
-
-                    // Fetch the long.
-                    pointer[name] = {
-                        type: 'long',
-                        value: longview[0]
-                    };
-                    break;
-                case 0x06: // Double
-                    buffer = new ArrayBuffer(8);
-                    view = new Uint8Array(buffer); // Create a view.
-                    doubleview = new Float64Array(buffer);
-
-                    for (let j = 7; j >= 0; j--) view[j] = array[++i];
-
-                    // Fetch the double.
-                    pointer[name] = {
-                        type: 'double',
-                        value: doubleview[0]
-                    };
-                    break;
-                case 0x07: // Double
-                    buffer = new ArrayBuffer(4);
-                    view = new Uint8Array(buffer); // Create a view.
-                    doubleview = new Float32Array(buffer);
-
-                    for (let j = 3; j >= 0; j--) view[j] = array[++i];
-
-                    // Fetch the float.
-                    pointer[name] = {
-                        type: 'float',
-                        value: doubleview[0]
-                    };
-                    break;
-                case 0x08: // Text
-                    let str = "";
-                    while (array[++i]) {
-                        str += String.fromCharCode(array[i]);
-                    }
-                    pointer[name] = {
-                        type: 'text',
-                        value: str
-                    };
-                    break;
-                case 0x0d: // Package
-                    n =
-                        (array[++i] << 24) |
-                        (array[++i] << 16) |
-                        (array[++i] << 8)  |
-                         array[++i];
-                    pointer[name] = {
-                        type: 'package',
-                        value: {}
-                    };
-                    last_pointers.push(pointer);
-                    pointer = pointer[name].value;
-                    packages.push(n);
-                    break;
-                default:
-                    throw new Error('Type `' + type + '` doesn\'t exist.');
+            o = convertTo(fromTagNum(type), type);
+            if (o) {
+                pointer[name] = o;
             }
+            console.log(pointer);
+            if (type > 0x13) throw new Error('Type `' + type + '` doesn\'t exist.');
+            
             if (packages[packages.length - 1] <= 0) {
                 // End package.
                 packages.pop();
@@ -162,46 +175,24 @@ function binArrayToTags(array, filename) {
 }
 
 function tagToBin(tag, name) {
-    return [toTagNum(tag)].concat(
+    return [toTagNum(tag.type, tag.value)].concat(
         encodeToName(name).concat(
             tagToBinValue(tag)
         )
     );
 }
 
-function toTagNum(tag) {
-    switch (tag.type) {
-        case 'bit':
-            return tag.value + 0; // 0x00 and 0x01
-        case 'byte':
-            return 0x02;
-        case 'short':
-            return 0x03;
-        case 'int':
-            return 0x04;
-        case 'long':
-            return 0x05;
-        case 'double':
-            return 0x06;
-        case 'float':
-            return 0x07;
-        case 'text':
-            return 0x08;
-        case 'ubyte':
-            return 0x09;
-        case 'ushort':
-            return 0x0a;
-        case 'uint':
-            return 0x0b;
-        case 'ulong':
-            return 0x0c;
-        case 'package':
-            return 0x0d;
-        case 'any':
-            return 0x0e;
-        default:
-            return 0xFF;
+function toTagNum(type, value) {
+    if (type === 'bit') return +value;
+    for (let i in tag_types) {
+        if (i < 0x02) continue;
+        if (tag_types[i] === type) return i;
     }
+    throw new Error(`Tag type ${type} doesn't exist.`)
+}
+
+function fromTagNum(hex) {
+    return tag_types[hex];
 }
 
 function encodeToName(name) {
@@ -216,16 +207,27 @@ function encodeToName(name) {
 
 function tagToBinValue(tag) {
     switch (tag.type) {
-        case 'byte': return [tag.value & 0xFF];
-        case 'short': return shortToBytes(tag.value)
-        case 'int': return intToBytes(tag.value);
-        case 'long': return longToBytes(tag.value);
+        case 'bit': return [];
+        case 'byte':
+        case 'ubyte': return [tag.value & 0xFF];
+        case 'short':
+        case 'ushort': return shortToBytes(tag.value);
+        case 'int':
+        case 'uint': return intToBytes(tag.value);
+        case 'long':
+        case 'ulong': return longToBytes(tag.value);
         case 'double': return doubleToByteArray(tag.value);
         case 'package': return packageToBytes(tag.value);
         case 'text': return encodeToName(tag.value);
         case 'float': return floatToByteArray(tag.value);
-
-        default: throw new TypeError('Could not encode tag with type `' + tag.type + '`.');
+        case 'byte_array':
+        case 'short_array':
+        case 'int_array':
+        case 'long_array':
+        case 'float_array':
+        case 'double_array': return arrayToBytes(tag.value, tag.type.split('_array')[0]);
+        default:
+            throw new TypeError('Could not encode tag with type `' + tag.type + '`.');
     }
 }
 
@@ -238,6 +240,20 @@ function packageToBytes(value) {
     // Add tags
     for (let i = 0; i < keys.length; i++) {
         result = result.concat(tagToBin(value[keys[i]], keys[i]));
+    }
+    // Result
+    return result;
+}
+
+function arrayToBytes(value, type) {
+    // Array:
+    // <items> <item1> <item2> ... <itemN>
+    const items = Object.values(value);
+    // Length
+    let result = intToBytes(items.length);
+    // Add tags
+    for (let i = 0; i < items.length; i++) {
+        result = result.concat(tagToBinValue(items[i]));
     }
     // Result
     return result;
