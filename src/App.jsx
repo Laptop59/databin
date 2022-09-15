@@ -18,6 +18,9 @@ const Messages = {
     OK: <FormattedMessage id="databin.buttons.ok" defaultMessage="OK" description="Button that represents OK."/>,
     ADD_TAG: <FormattedMessage id="databin.buttons.addtag" defaultMessage="Add tag" description="Button that represents adding a tag."/>,
     RENAME: <FormattedMessage id="databin.buttons.rename" defaultMessage="Rename" description="Button that represents renaming."/>,
+    EDIT:  <FormattedMessage id="databin.buttons.edit" defaultMessage="Edit" description="Button that represents editing the value."/>,
+    CHANGE_TAG_TYPE:  <FormattedMessage id="databin.buttons.changetype" defaultMessage="Change type to selected" description="Button that represents changing the type."/>,
+    DELETE:  <FormattedMessage id="databin.buttons.delete" defaultMessage="Delete" description="Button that represents deleting."/>,
 }
 
 class App extends React.Component {
@@ -143,12 +146,16 @@ class App extends React.Component {
         this.setState({tags})
     }
 
-    manageTag(navigated, name, tags, extra) {
+    getNewIntl() {
         const cache = createIntlCache()
-        const intl = createIntl({
+        return createIntl({
             locale: this.props.locale || "en-us",
             messages: this.props.messages || {}
         }, cache)
+    }
+
+    manageTag(navigated, name, tags, extra) {
+        const intl = this.getNewIntl()
         // Do different things depending on the type.
         const n = navigated[name];
         if (n.type === 'file') {
@@ -171,7 +178,7 @@ class App extends React.Component {
                                     const tagname = prompt(intl.formatMessage({id: "databin.tags.tagname", defaultMessage: "Name of the tag:", description: "Asking the name of the tag."}));
                                     if (!tagname) return;
                                     if (!validString(tagname)) {
-                                        alert('A name of an element cannot contain unicode.');
+                                        alert(intl.formatMessage({id: "databin.tags.nounicode", defaultMessage: "A name of an element cannot contain unicode.", description: "Alert that tells that no element can have unicode names."}));
                                         return;
                                     }
                                     navigated[this.state.title].value[tagname] = {
@@ -182,7 +189,7 @@ class App extends React.Component {
                                     this.setState(tags);
                                     break;
                                 case 1:
-                                    let change = prompt('Change the name of the file:', this.state.title);
+                                    let change = prompt(intl.formatMessage({id: "databin.tags.renamefile", defaultMessage: "Change the name of the file:", description: "Input the new name of the file."}), this.state.title);
                                     if (change) {
                                         // Rename the file.
                                         const file = tags[this.state.title];
@@ -202,15 +209,25 @@ class App extends React.Component {
             const ntype = n.type.split("_array")[0];
             const {isInArray} = extra;
             this.setState({
-                dialog: <Dialog
-                    text="What do you want to do with this tag?"
+                    dialog: <Dialog
+                        text={<FormattedMessage
+                        id="databin.tags.edittag"
+                        defaultMessage="What do you want to do with this tag?"
+                        description="A message to ask the user what to do with the tag."
+                    />}
                     buttons={[
-                        !this.isTagContainer(n.type) && "Edit",
-                        !isInArray && "Rename",
-                        !isInArray && "Change Type To Selected",
-                        "Delete",
-                        n.type === 'package' && "Add Tag",
-                        n.type.split("_array").length > 1 && "Add " + (ntype.toUpperCase())
+                        !this.isTagContainer(n.type) && Messages.EDIT,
+                        !isInArray && Messages.RENAME,
+                        !isInArray && Messages.CHANGE_TAG_TYPE,
+                        Messages.DELETE,
+                        n.type === 'package' && Messages.ADD_TAG,
+                            n.type.split("_array").length > 1 &&
+                        <FormattedMessage
+                            id="databin.buttons.additem"
+                            defaultMessage="Add {item}"
+                            description="A button that represents adding an item."
+                            values={{item: ntype.toUpperCase()}}
+                        />
                     ]}
                     onClick={
                         i => {
@@ -310,23 +327,23 @@ class App extends React.Component {
         if (newtag && type === 'text') return '';
         switch (type) {
             case 'byte':
-                val = ((value + 0x80) & 0xFF) - 0x80;
+                val = ((Number(value) + 0x80) & 0xFF) - 0x80;
                 break;
             case 'ubyte':
-                val = value & 0xFF;
+                val = Number(value) & 0xFF;
                 break;
             case 'short':
-                val = ((value + 0x8000) & 0xFFFF) - 0x8000;
+                val = ((Number(value) + 0x8000) & 0xFFFF) - 0x8000;
                 break;
             case 'ushort':
-                val = value & 0xFFFF;
+                val = Number(value) & 0xFFFF;
                 break;
             case 'int':
                 // JavaScript manages bitwise operations to 32-bit numbers.
-                val = (value >>> 0) | 0;
+                val = (Number(value) >>> 0) | 0;
                 break;
             case 'uint':
-                val = value >>> 0;
+                val = Number(value) >>> 0;
                 break;
             case 'long':
                 if (isNaN(Number(value)) || !isFinite(Number(value))) return 0;
@@ -336,13 +353,17 @@ class App extends React.Component {
             case 'ulong':
                 if (isNaN(Number(value)) || !isFinite(Number(value))) return 0;
                 // Use BigInt
+                return (BigInt(value)) % BigInt("0x10000000000000000");
+            case 'ulong':
+                if (isNaN(Number(value)) || !isFinite(Number(value))) return 0;
+                // Use BigInt
                 return BigInt(value) % BigInt("0x10000000000000000");
             case 'double':
                 val = Number(value);
                 break;
             case 'float':
                 // Convert it to a double first.
-                val = this.toValidValue(value, 'double', true);
+                val = this.toValidValue(Number(value), 'double', true);
                 // Lose precision.
                 let buffer = new ArrayBuffer(4); // A float (single) has 4 bytes.
                 let view = new Float32Array(buffer);
