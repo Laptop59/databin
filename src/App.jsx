@@ -30,7 +30,7 @@ class App extends React.Component {
         this.state = {
             dialog: null,
             selected: 'byte',
-            title: 'Untitled',
+            title: this.getNewIntl().formatMessage({id: "databin.tags.untitled", defaultMessage: "Untitled", description:"A untitled title."}) || 'Untitled',
             tags: {
                 Untitled: {
                     type: 'file',
@@ -50,10 +50,11 @@ class App extends React.Component {
         if (window.location.href.endsWith('#crash')) throw new Error('The crash was done manually.');
         return (
             <div className="DataBinApp">
-                <ErrorBoundary cover="DataBinRibbon" onCrash={() => this.tryToSave()}>
+                <ErrorBoundary locale={this.props.locale} messages={this.props.messages} isRtL={this.props.locale} cover="DataBinRibbon" onCrash={() => this.tryToSave()}>
                     <Ribbon
                         changeLanguage={x => this.props.changeLanguage(x)}
                         languages={this.props.languages}
+                        locale={this.props.locale}
                         onFile={x => {
                             if (x === 'save') {
                                 SaveFile(this.state.tags, this.state.title);
@@ -63,7 +64,7 @@ class App extends React.Component {
                         }}
                     />
                 </ErrorBoundary>
-                <ErrorBoundary cover="DataBinToolbox" onCrash={() => this.tryToSave()}>
+                <ErrorBoundary locale={this.props.locale} messages={this.props.messages} isRtL={this.props.locale} cover="DataBinToolbox" onCrash={() => this.tryToSave()}>
                     <Toolbox 
                         selected={this.state.selected}
                         onSelect={type => {
@@ -91,7 +92,7 @@ class App extends React.Component {
                         }}
                     />
                 </ErrorBoundary>
-                <ErrorBoundary cover="DataBinStructure" onCrash={() => this.tryToSave()}>
+                <ErrorBoundary locale={this.props.locale} messages={this.props.messages} isRtL={this.props.locale} cover="DataBinStructure" onCrash={() => this.tryToSave()}>
                     <Structure beforeTry={() => this.saveToPrev()}
                         tags={this.state.tags}
                         clickedTag={(outerkeys, name) =>
@@ -100,12 +101,14 @@ class App extends React.Component {
                         miniTag={(outerkeys, name) =>
                             this.miniTag(outerkeys, name)
                         }
+                        locale={this.props.locale}
+                        messages={this.props.messages}
                     />
                 </ErrorBoundary>
-                <ErrorBoundary conver="DataBinDialogBG" onCrash={() => this.tryToSave()}>
+                <ErrorBoundary locale={this.props.locale} messages={this.props.messages} isRtL={this.props.locale} conver="DataBinDialogBG" onCrash={() => this.tryToSave()}>
                     {this.state.dialog}
                 </ErrorBoundary>
-                <ErrorBoundary cover="DataBinInputFileButton" onCrash={() => this.tryToSave()}>
+                <ErrorBoundary locale={this.props.locale} messages={this.props.messages} isRtL={this.props.locale} cover="DataBinInputFileButton" onCrash={() => this.tryToSave()}>
                     <FileInput
                         onChange={async files => {
                             let result = await LoadFile(files);
@@ -208,6 +211,7 @@ class App extends React.Component {
         } else {
             const ntype = n.type.split("_array")[0];
             const {isInArray} = extra;
+            const intl = this.getNewIntl();
             this.setState({
                     dialog: <Dialog
                         text={<FormattedMessage
@@ -234,7 +238,7 @@ class App extends React.Component {
                             let todo = this.buttonClicked(i, 1, navigated[name].type);
                             switch (i) {
                                 case 0:
-                                    if (['string','number'].includes(typeof todo)) {
+                                    if (['string','number'].includes(typeof todo) || Array.isArray(todo)) {
                                         navigated[name].value = this.toValidValue(todo, navigated[name].type);
                                         this.setState(tags);
                                     }
@@ -256,15 +260,15 @@ class App extends React.Component {
                                     navigated[name].value = this.toValidValue(navigated[name].value, type);
                                     break;
                                 case 3:
-                                    const confirmed = window.confirm('Are you sure you want to delete this tag?');
+                                    const confirmed = window.confirm(intl.formatMessage({id: "databin.tags.deletetag", defaultMessage: "Are you sure you want to delete this tag?", description: "Confirms the user to delete the tag."}));
 
                                     if (confirmed) delete navigated[name];
                                     break;
                                 case 4: 
-                                    const tagname = prompt('Name of the tag:');
+                                    const tagname = prompt(intl.formatMessage({id: "databin.tags.tagname", defaultMessage: "Name of the tag:", description: "Asking the name of the tag."}));
                                     if (!tagname) return;
                                     if (!validString(tagname)) {
-                                        alert('A name of an element cannot contain unicode.');
+                                        alert(intl.formatMessage({id: "databin.tags.nounicode", defaultMessage: "A name of an element cannot contain unicode.", description: "Alert that tells that no element can have unicode names."}));
                                         return;
                                     }
                                     navigated[name].value[tagname] = {
@@ -275,7 +279,7 @@ class App extends React.Component {
                                     break;
                                 case 5:
                                     const t = navigated[name].type.split("_array")[0];
-                                    const n = Math.min(+prompt("How many tags do you want to add?") || 0, 0xFFFFFFFF);
+                                    const n = Math.min(+prompt(intl.formatMessage({id: "databin.tags.addtags", defaultMessage: "How many tags do you want to add?", description: "Asks the user how many tags to add."})) || 0, 0xFFFFFFFF);
                                     for (let i = 0; i < n; i++) navigated[name].value[""+Object.keys(navigated[name].value).length] = {
                                         type: t,
                                         value: this.toValidValue(0, t, true)
@@ -292,22 +296,25 @@ class App extends React.Component {
     }
 
     buttonClicked(i, type, tagtype) {
+        const intl = this.getNewIntl();
         this.setState({ dialog: null });
         if (type === 1) {
             if (i === 0) { // If EDIT was clicked
-                const newvalue = prompt('Enter new value for the tag:');
+                const newvalue = prompt(intl.formatMessage({id: "databin.tags.newvalue", defaultMessage: "Enter new value for the tag:", description: "Asks the user the new value of the tag."}));
                 if (newvalue) {
                     let n;
                     if (tagtype === 'long' || tagtype === 'ulong' || tagtype === 'text')
                         n = newvalue;
+                    else if (tagtype === 'time')
+                        n = this.toValidValue(newvalue, tagtype, false)
                     else
                         n = Number(newvalue);
                     return n;
                 }
             } else if (i === 1) { // Rename
-                const newname = prompt('Enter new name for the tag:');
+                const newname = prompt(intl.formatMessage({id: "databin.tags.tagname", defaultMessage: "Name of the tag:", description: "Asking the name of the tag."}));
                 if (newname && !validString(newname)) {
-                    alert('A name of an element cannot contain unicode.');
+                    alert(intl.formatMessage({id: "databin.tags.nounicode", defaultMessage: "A name of an element cannot contain unicode.", description: "Alert that tells that no element can have unicode names."}));
                     return;
                 }
                 if (newname) return newname;
@@ -354,10 +361,6 @@ class App extends React.Component {
                 if (isNaN(Number(value)) || !isFinite(Number(value))) return 0;
                 // Use BigInt
                 return (BigInt(value)) % BigInt("0x10000000000000000");
-            case 'ulong':
-                if (isNaN(Number(value)) || !isFinite(Number(value))) return 0;
-                // Use BigInt
-                return BigInt(value) % BigInt("0x10000000000000000");
             case 'double':
                 val = Number(value);
                 break;
@@ -377,6 +380,16 @@ class App extends React.Component {
                 return value + '';
             case 'package':
                 return {};
+            case 'time':
+                if (typeof value === "string" && value.split(":").length === 3 && value.split(".").length >= 2) {
+                    // Extract
+                    value = value.split('.').join(':').split(':').map(x => !isNaN(+x) ? Math.round(Math.max(+x, 0)) : 0);
+                } else if (typeof value === "string" && value.split(":").length >= 3) {
+                    // Extract
+                    value = value.split(':').map(x => !isNaN(+x) ? Math.round(Math.max(+x, 0)) : 0);
+                }
+                const time = [Math.min(value[0] || 0, 23), Math.min(value[1] || 0, 59), Math.min(value[2] || 0, 59), Math.min(value[3] || 0, 99)];
+                return time;
             default:
                 if (type.split("_array").length > 1) return {};
                 val = value;

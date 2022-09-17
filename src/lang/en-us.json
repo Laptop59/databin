@@ -1,12 +1,17 @@
 {
     "databin.tags.nobigint": "Your browser does not support BigInt, which is important.",
     "databin.tags.editfile": "What do you want to do with the file?",
-    "databin.tags.tagname": "Name of the tag: (hello ;))",
+    "databin.tags.tagname": "Name of the tag:",
     "databin.tags.nounicode": "A name of an element cannot contain unicode.",
     "databin.tags.renamefile": "Change the name of the file:",
     "databin.tags.edittag": "What do you want to do with this tag?",
     "databin.tags.addtags": "How many tags do you want to add?",
     "databin.tags.deletetag": "Are you sure you want to delete this tag?",
+    "databin.tags.newvalue": "Enter new value for the tag:",
+    "databin.tags.untitled": "Untitled",
+    "databin.tags.valuetags": "{name}: {value}",
+    "databin.tags.singulartags": "{name}: [1 tag]",
+    "databin.tags.pluraltags": "{name}: [{count} tags]",
 
     "databin.buttons.ok": "OK",
     "databin.buttons.addtag": "Add Tag",
@@ -21,5 +26,10 @@
     "databin.ribbon.save": "Save",
 
     "databin.categories.standard": "Standard",
-    "databin.categories.array": "Arrays"
+    "databin.categories.arrays": "Arrays",
+
+    "databin.crash.ohno": "Oh No!",
+    "databin.crash.sorry": "We are so sorry,\nbut DataBin crashed due to an error.",
+    "databin.crash.details": "Technical Error Details:",
+    "databin.crash.reload": "Reload DataBin"
 }

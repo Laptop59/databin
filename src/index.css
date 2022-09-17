@@ -35,6 +35,13 @@ body, html, #root {
     overflow-y: auto;
 }
 
+html[dir='rtl'] .DataBinStructureContent {
+    margin-left: 0;
+    margin-top: 0;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
 .DataBinStructureTag {
     margin-bottom: -1px;
 }
@@ -85,11 +92,25 @@ body, html, #root {
     color: white !important;
 }
 
+.DataBinTabFile {
+    position: absolute;
+    left: 0;
+    width: 150px;
+}
+
 .DataBinTabLang {
-    position: relative;
-    left: 80px;
+    position: absolute;
+    left: calc(100% - 190px);
     bottom: 37.5px;
     width: 150px;
+}
+
+html[dir='rtl'] .DataBinTabLang {
+    right: calc(100% - 35px)
+}
+
+html[dir='rtl'] .DataBinTabFile {
+    right: 160px;
 }
 
 .DataBinToolbox {
@@ -101,7 +122,7 @@ body, html, #root {
 .DataBinToolboxCategories {
     height: 20px;
     background-color: #c7edff;
-    --categories: 2;
+    --categories: 3;
 }
 
 .DataBinToolboxCategory {
@@ -278,4 +299,8 @@ body, html, #root {
     position: relative;
     left: -3.5px;
     top: -.5px;
+}
+
+html[dir='rtl'] .DataBinStructureButton div {
+    right: -3.5px;
 }

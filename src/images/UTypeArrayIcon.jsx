@@ -8,7 +8,7 @@ const UTypeArrayIcon = props => (
             <rect x="8.2288" y="33.504" width="33.121" height="7.0517" fill={props.tertiary} />
             <rect x="8.2288" y="21.044" width="33.121" height="7.0517" fill={props.tertiary} />
          </g>
-         <text x="15.026048" y="34.561096" fill={props.color || "white"} fontFamily="sans-serif" fontSize="34.351px" strokeWidth=".85878"><tspan x="5.226048" y="34.561096" fill={props.color || "white"} fontFamily="Consolas" strokeWidth=".85878">+{props.char}</tspan></text>
+         <text textAnchor="middle" x="23.026048" y="34.561096" fill={props.color || "white"} fontFamily="sans-serif" fontSize="34.351px" strokeWidth=".85878"><tspan x="23.526048" y="34.561096" fill={props.color || "white"} fontFamily="Consolas" strokeWidth=".85878">+{props.char}</tspan></text>
       </g>
    </svg>
 );

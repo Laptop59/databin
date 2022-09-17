@@ -1,4 +1,5 @@
 import React from 'react';
+import { FormattedMessage } from 'react-intl';
 import Tab from './Tab';
 
 class Ribbon extends React.Component {
@@ -12,10 +13,22 @@ class Ribbon extends React.Component {
                     <div className="DataBinTabsWrapper">
                         <Tab
                             className="DataBinTabFile"
-                            name="File"
+                            name={<FormattedMessage
+                                id="databin.ribbon.file"
+                                defaultMessage="File"
+                                description="Text for file dropdown."
+                            />}
                             items={{
-                                save: "Save",
-                                load: "Load"
+                                save: <FormattedMessage
+                                    id="databin.ribbon.save"
+                                    defaultMessage="Save"
+                                    description="Text for save dropdown."
+                                />,
+                                load: <FormattedMessage
+                                    id="databin.ribbon.load"
+                                    defaultMessage="Load"
+                                    description="Text for load dropdown."
+                                />
                             }}
                             file={true}
                             onChange={op => this.props.onFile(op)}
@@ -23,7 +36,7 @@ class Ribbon extends React.Component {
                         <Tab
                             className="DataBinTabLang"
                             styles={{float: 'right'}}
-                            name="Language"
+                            name={this.props.languages ? (this.props.languages[this.props.locale].name || this.props.locale) : this.props.locale}
                             file={false}
                             items={this.toFriendly(this.props.languages)}
                             onChange={l => this.props.changeLanguage(l)}

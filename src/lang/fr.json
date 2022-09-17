@@ -1,0 +1,35 @@
+{
+    "databin.tags.nobigint": "Votre navigateur ne supporte pas BigInt, lequel est important.",
+    "databin.tags.editfile": "Quel voulons-vous faire avec le fichier ?",
+    "databin.tags.tagname": "Le nom de la balise :",
+    "databin.tags.nounicode": "Un nom d'élément ne peuvez pas contenir d'unicode.",
+    "databin.tags.renamefile": "Changer le nom de le fichier:",
+    "databin.tags.edittag": "Quel voulez-vous faire avec le fichier ?",
+    "databin.tags.addtags": "Combien de balise voulez-vous ajouter ?",
+    "databin.tags.deletetag": "Es-tu sûr que vous voulez supprimer cette balise ?",
+    "databin.tags.newvalue": "Saisir une nouvelle valeur pour la balise :",
+    "databin.tags.untitled": "Sans titre",
+    "databin.tags.valuetags": "{name} : {value}",
+    "databin.tags.singulartags": "{name} : [1 balise]",
+    "databin.tags.pluraltags": "{name} : [{count} balises]",
+
+    "databin.buttons.ok": "D'acoord",
+    "databin.buttons.addtag": "Ajouter une balise",
+    "databin.buttons.additem": "Ajouter {item}",
+    "databin.buttons.rename": "Renommer",
+    "databin.buttons.edit": "Éditer",
+    "databin.buttons.changetype": "Changer le type en sélectionné",
+    "databin.buttons.delete": "Supprimer",
+
+    "databin.ribbon.file": "Dossier",
+    "databin.ribbon.load": "Charger",
+    "databin.ribbon.save": "Enregistrer",
+
+    "databin.categories.standard": "Standard",
+    "databin.categories.arrays": "Tableaux",
+
+    "databin.crash.ohno": "Oh Non !",
+    "databin.crash.sorry": "Nous sommes très désolés,\nmais DataBin a planté à cause d'une erreur.",
+    "databin.crash.details": "Détails de l'erreur technique :",
+    "databin.crash.reload": "Recharger DataBin"
+}

@@ -1,4 +1,5 @@
 import React from "react";
+import { FormattedMessage, createIntlCache, createIntl } from "react-intl";
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
@@ -47,21 +48,43 @@ class ErrorBoundary extends React.Component {
         );
     }
 
-    errorGUI() {
+    errorGUI() {// Create our sorry messages, replacing new lines.
+        const cache = createIntlCache()
+        const intl = createIntl({
+            locale: this.props.locale || "en-us",
+            messages: this.props.messages || {}
+        }, cache);
+
+        const paragraphs = intl.formatMessage({id: "databin.crash.sorry", defaultMessage: "We are so sorry,\nbut DataBin crashed due to an error.", description: "Sorry message for crash. Paragraphs are separated by newlines `\\n`"});
+        const sorry = paragraphs.split("\n").map((str, i, arr) => <p
+            key={i}
+        >{str}{i + 1 < arr.length && <br/>}</p>)
+
         return (
             <div className={this.props.cover}>
                 <div className="DataBinCrash">
                     <div className="DataBinCrashTitle">
-                        <h1>Oh No!</h1>
+                        <h1><FormattedMessage
+                            id="databin.crash.ohno"
+                            defaultMessage="Oh no!"
+                            description="DataBin crash exclamation."
+                        /></h1>
                     </div>
                     <div className="DataBinCrashBody">
-                        <p>We are so sorry,</p>
-                        <p>but DataBin crashed due to an error.</p>
+                        {sorry}
                         <br/>
-                        <button className="DataBinCrashReload" onClick={this.reload}>Reload DataBin</button>
+                        <button className="DataBinCrashReload" onClick={this.reload}><FormattedMessage
+                            id="databin.crash.reload"
+                            defaultMessage="Reload DataBin."
+                            description="DataBin reload button."
+                        /></button>
                         <br/>
                         <br/>
-                        <p>Technical Error Details:</p>
+                        <p><FormattedMessage
+                            id="databin.crash.details"
+                            defaultMessage="Technical Error Details:"
+                            description="Databin detail text."
+                        /></p>
                         <textarea
                             className="DataBinCrashDetails"
                             readOnly

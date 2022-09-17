@@ -3,7 +3,7 @@ const UTypeIcon = props => (
       <g>
          <rect x=".30877" y="10.309" width="39.382" height="39.382" fill={props.secondary} />
          <rect x="5" y="5" width="39.382" height="39.382" fill={props.primary} />
-         <text x="15.026048" y="34.561096" fill={props.color || "white"} fontFamily="sans-serif" fontSize="30px" strokeWidth=".85878"><tspan x="9.026048" y="34.561096" fill={props.color || "white"} fontFamily="Consolas" strokeWidth=".85878">+{props.char}</tspan></text>
+         <text textAnchor="middle"x="23.526048" y="34.561096" fill={props.color || "white"} fontFamily="sans-serif" fontSize="30px" strokeWidth=".85878"><tspan x="23.526048" y="34.561096" fill={props.color || "white"} fontFamily="Consolas" strokeWidth=".85878">+{props.char}</tspan></text>
       </g>
    </svg>
 );

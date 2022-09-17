@@ -28,6 +28,8 @@ import UByteArrayIcon from './images/UByteArrayIcon.jsx';
 import UShortArrayIcon from './images/UShortArrayIcon.jsx';
 import UIntArrayIcon from './images/UIntArrayIcon.jsx';
 import ULongArrayIcon from './images/ULongArrayIcon.jsx';
+import { FormattedMessage } from 'react-intl';
+import TimeIcon from './images/TimeIcon.jsx';
 
 // Define separator:
 /**
@@ -52,6 +54,11 @@ const ItemSeparator = () => {
  */
 const ToolboxStructure = {
     standard: {
+        $MESSAGE: <FormattedMessage
+            id="databin.categories.standard"
+            defaultMessage="Standard"
+            description="A category for standard tags."
+        />,
         $COLOR: '#9999ff',
         bit: <BitIcon/>,
         byte: <ByteIcon/>,
@@ -71,6 +78,11 @@ const ToolboxStructure = {
 
     array: {
         $COLOR: '#ff9999',
+        $MESSAGE: <FormattedMessage
+            id="databin.categories.arrays"
+            defaultMessage="Arrays"
+            description="A category for array tags."
+        />,
         byte_array: <ByteArrayIcon/>,
         short_array: <ShortArrayIcon/>,
         int_array: <IntArrayIcon/>,
@@ -82,7 +94,16 @@ const ToolboxStructure = {
         ushort_array: <UShortArrayIcon/>,
         uint_array: <UIntArrayIcon/>,
         ulong_array: <ULongArrayIcon/>,
-    }
+    },
+    miscellaneous: {
+        $MESSAGE: <FormattedMessage
+            id="databin.categories.miscellaneous"
+            defaultMessage="Miscellaneous"
+            description="A category for miscellaneous tags."
+        />,
+        $COLOR: '#ffff99',
+        time: <TimeIcon/>
+    },
 }
 
 /*
@@ -91,8 +112,6 @@ const ToolboxStructure = {
 */
 const Types = Object.assign({}, ...Object.values(ToolboxStructure));
 const Categories = Object.keys(ToolboxStructure);
-
-console.log(Types)
 
 class Toolbox extends React.Component {
     constructor(props) {
@@ -117,6 +136,7 @@ class Toolbox extends React.Component {
         let result = [], i = 0;
         for (let category of Categories) {
             const color = ToolboxStructure[category].$COLOR || "black";
+            const name = ToolboxStructure[category].$MESSAGE || "???";
             result.push(
                 <button
                     key={i++}
@@ -126,7 +146,7 @@ class Toolbox extends React.Component {
                     }}
                     onClick={() => {this.setState({selected: category})}}
                 >
-                    {category}
+                    {name}
                 </button>
             )
         }
@@ -139,9 +159,9 @@ class Toolbox extends React.Component {
 
         for (let i = 0; i < names.length; i++) {
             if (Types[names[i]] === SPACE) {
-                buttons.push(<ItemSeparator/>);
+                buttons.push(<ItemSeparator key={i}/>);
                 continue;
-            } else if (names[i] === '$COLOR') continue;
+            } else if (names[i] === '$COLOR' || names[i] === '$MESSAGE') continue;
             buttons.push(
                 <button
                     onClick={() => this.props.onSelect(names[i])}

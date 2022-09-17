@@ -4,6 +4,13 @@
 /* global BigUint64Array */
 
 /**
+ * The maximum tag type in number
+ * @readonly
+ * @type {number}
+ */
+const max_tag_type = 0x14;
+
+/**
  * Enum for tag types
  * @readonly
  * @enum {string}
@@ -28,7 +35,8 @@ const tag_types = {
     0x10: "int_array",
     0x11: "long_array",
     0x12: "float_array",
-    0x13: "double_array"
+    0x13: "double_array",
+    0x14: "time"
 }
 
 function tagsToBin(tags, name) {
@@ -51,7 +59,7 @@ function binArrayToTags(array, filename) {
     function convertTo(type, hex) {
         let n, buffer, view, longview, doubleview, floatview, tag, str;
         switch (type) {
-            case 'bit': return {type: 'bit', value: hex};
+            case 'bit': return {type: 'bit', value: !!hex};
             case 'byte':
                 n = array[++i];
                 return {type: 'byte', value: n >= 0x80 ? n - 0x100 : n};
@@ -114,6 +122,9 @@ function binArrayToTags(array, filename) {
                 for (let j = 7; j >= 0; j--) view[j] = array[++i];
                 // Fetch the long.
                 return {type: 'ulong', value: longview[0]};
+            case 'time':
+                n = Math.min((array[++i] << 16) | (array[++i] << 8) | array[++i], 8639999);
+                return {type: 'time', value: [Math.floor(n / 360000), Math.floor(n / 6000) % 60, Math.floor(n / 100) % 60, n % 100]};
             default:
                 if (type.split('_array').length > 1) {
                     n = (array[++i] << 24) | (array[++i] << 16) | (array[++i] << 8) | array[++i];
@@ -144,7 +155,7 @@ function binArrayToTags(array, filename) {
                 pointer[name] = o;
             }
             console.log(pointer);
-            if (type > 0x13) throw new Error('Type `' + type + '` doesn\'t exist.');
+            if (type > max_tag_type) throw new Error('Type `' + type + '` doesn\'t exist.');
             
             if (packages[packages.length - 1] <= 0) {
                 // End package.
@@ -226,9 +237,23 @@ function tagToBinValue(tag) {
         case 'long_array':
         case 'float_array':
         case 'double_array': return arrayToBytes(tag.value, tag.type.split('_array')[0]);
+        case 'time': return convertToTime(tag.value);
         default:
             throw new TypeError('Could not encode tag with type `' + tag.type + '`.');
     }
+}
+
+function convertToTime(value) {
+    /* Simple formula:
+     * T = 360000h + 6000m + 100s + c
+     * where
+     * h = hours
+     * m = minutes
+     * s = seconds
+     * c = centiseconds (1/100 of a second)
+     */
+    const num = value[0] * 360000 + value[1] * 6000 + value[2] * 100 + value[3];
+    return [(num >> 16) & 0xFF, (num >> 8) & 0xFF, num & 0xFF];
 }
 
 function packageToBytes(value) {

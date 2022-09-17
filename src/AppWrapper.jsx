@@ -1,6 +1,7 @@
 import App from './App'
 import { IntlProvider } from 'react-intl';
 import React from 'react';
+import ErrorBoundary from './ErrorBoundary';
 
 const langDir = "./lang/";
 
@@ -15,6 +16,14 @@ const languages = {
     "en-us": {
         name: "English",
         isRtL: false
+    },
+    "fr": {
+        name: "Français",
+        isRtL: false
+    },
+    "ar": {
+        name: "اَلْعَرَبِيَّةُ",
+        isRtL: true
     }
 };
 
@@ -32,7 +41,7 @@ async function getMessages(locale) {
 
 function getIfRtL(locale) {
     let lang = languages[locale];
-    return lang ? lang.isRtL : false;
+    return lang && lang.isRtL;
 }
 
 class AppWrapper extends React.Component {
@@ -40,38 +49,46 @@ class AppWrapper extends React.Component {
         super(props);
         this.state = {
             locale: localeSet(),
-            messages: {}
+            messages: {},
+            done: false
         }
     }
 
     componentDidMount() {
-        this.updateMessages();
+        this.updateMessages(true);
     }
 
-    async updateMessages() {
+    async updateMessages(firstTime, l) {
         this.setState({
-            messages: await getMessages(this.state.locale)
+            messages: await getMessages(l || this.state.locale)
         })
+        if (firstTime) this.setState({done: true})
     }
 
-    changeLanguage(l) {
+    async changeLanguage(l) {
+        if (l === this.state.locale) return;
         console.warn("Changed language to " + l)
         this.setState({
             locale: l
         });
-        this.updateMessages();
+        await this.updateMessages(null, l);
+        document.getElementsByTagName('html')[0].setAttribute("dir", getIfRtL(l) ? "rtl" : "ltr");
     }
 
     render() {
         return (
-            <IntlProvider locale={this.state.locale} messages={this.state.messages} isRtL={getIfRtL(this.state.locale)}>
-                <App
-                    changeLanguage={l => this.changeLanguage(l)}
-                    languages={languages}
-                    locale={this.state.locale}
-                    messages={this.state.messages}
-                />
-            </IntlProvider>
+            <ErrorBoundary cover="DataBinApp">
+                {this.state.done && <IntlProvider locale={this.state.locale} messages={this.state.messages} isRtL={getIfRtL(this.state.locale)}>
+                    <ErrorBoundary cover="DataBinApp" locale={this.state.locale} messages={this.state.messages} isRtL={getIfRtL(this.state.locale)}>
+                        <App
+                            changeLanguage={l => this.changeLanguage(l)}
+                            languages={languages}
+                            locale={this.state.locale}
+                            messages={this.state.messages}
+                        />
+                    </ErrorBoundary>
+                </IntlProvider>}
+            </ErrorBoundary>
         );
     }
 }

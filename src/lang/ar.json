@@ -1,0 +1,35 @@
+{
+    "databin.tags.nobigint": "متصفحك لا يدعم BigInt ، وهو أمر مهم",
+    "databin.tags.editfile": "ماذا تريد أن تفعل بالملف؟",
+    "databin.tags.tagname": "اسم الوسم:",
+    "databin.tags.nounicode": "لا يمكن لاسم عنصر أن يحتوي على unicode.",
+    "databin.tags.renamefile": "غيّر اسم الملف:",
+    "databin.tags.edittag": "ماذا تريد أن تفعل بهذه العلامة؟",
+    "databin.tags.addtags": "كم عدد العلامات التي تريد إضافتها؟",
+    "databin.tags.deletetag": "هل أنت متأكد أنك تريد حذف هذه العلامة؟",
+    "databin.tags.newvalue": "أدخل قيمة جديدة للعلامة:",
+    "databin.tags.untitled": "بدون عنوان",
+    "databin.tags.valuetags": "{value} :{name}",
+    "databin.tags.singulartags": "[1 علامة] :{name}",
+    "databin.tags.pluraltags": "[{count} علامة] :{name}",
+
+    "databin.buttons.ok": "نعم",
+    "databin.buttons.addtag": "أضف علامة",
+    "databin.buttons.additem": "أضف {item}",
+    "databin.buttons.rename": "إعادة تسمية",
+    "databin.buttons.edit": "تعديل",
+    "databin.buttons.changetype": "تغيير النوع إلى المحدد",
+    "databin.buttons.delete": "حذف",
+
+    "databin.ribbon.file": "ملف",
+    "databin.ribbon.load": "تحميل",
+    "databin.ribbon.save": "حفظ",
+
+    "databin.categories.standard": "قياسي",
+    "databin.categories.arrays": "المصفوفات",
+
+    "databin.crash.ohno": "أوه لا!",
+    "databin.crash.sorry": "نحن آسفون للغاية ،\nلكن DataBin تعطل بسبب خطأ.",
+    "databin.crash.details": "تفاصيل الخطأ الفني:",
+    "databin.crash.reload": "إعادة تحميل DataBin"
+}
