@@ -138,14 +138,14 @@ class Help extends React.Component {
         switch (type) {
             case "endinside":
                 return (
-                    <svg version="1.1" width="25" height="25" viewBox="0 0 35 35" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M 25 14.5 v 12 h 12 h -12 v -12" strokeWidth="2" stroke="white"/>
+                    <svg version="1.1" width="25" height="25" viewBox="0 0 35 40" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 25 0 v 26.5 h 12 h -12 v -26.5" strokeWidth="2" stroke="white"/>
                     </svg>
                 );
             case "inside":
                 return (
                     <svg version="1.1" width="25" height="25" viewBox="0 0 35 40" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M 25 14.5 v 24 v -12 h 12 h -12 v -12" strokeWidth="2" stroke="white"/>
+                        <path d="M 25 0.5 v 50 v -28 h 12 h -12 v -50" strokeWidth="2" stroke="white"/>
                     </svg>
                 );
             case "plus":

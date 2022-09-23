@@ -1,5 +1,5 @@
 # UShort
-A ushort is a unsigned numeric tag DataBin has. It has a id of `0x0a`. It can store from `0` to `65536`.
+A ushort is a unsigned numeric tag DataBin has. It has a id of `0x0a`. It can store from `0` to `65535`.
 
 <Image src="UShortIcon"/><br/>
 

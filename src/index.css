@@ -398,7 +398,7 @@ html[dir='rtl'] .DataBinStructureButton div {
     position: absolute;
     background-color: #002638;
     text-align: left;
-    line-height: 25px;
+    line-height: 0px;
     color: white;
     overflow-x: auto;
 }
