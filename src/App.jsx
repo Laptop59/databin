@@ -9,6 +9,7 @@ import ErrorBoundary from './ErrorBoundary';
 
 import {SaveFile, SelectFile, LoadFile} from './SaveLoad';
 import { FormattedMessage, createIntl, createIntlCache } from 'react-intl';
+import Help from './Help';
 
 // React throws an error if we don't include this:
 //
@@ -42,7 +43,8 @@ class App extends React.Component {
                 selected: 'byte',
                 title: 'Untitled',
                 tags: {}
-            }
+            },
+            help: false
         }
     }
 
@@ -62,6 +64,7 @@ class App extends React.Component {
                                 SelectFile();
                             }
                         }}
+                        openHelp={() => this.setState({help: true})}
                     />
                 </ErrorBoundary>
                 <ErrorBoundary locale={this.props.locale} messages={this.props.messages} isRtL={this.props.locale} cover="DataBinToolbox" onCrash={() => this.tryToSave()}>
@@ -119,6 +122,11 @@ class App extends React.Component {
                             });
                         }}
                     />
+                </ErrorBoundary>
+                <ErrorBoundary>
+                    {this.state.help && <Help
+                        closeHelp={() => this.setState({help: false})}
+                    />}
                 </ErrorBoundary>
             </div>
         );

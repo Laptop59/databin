@@ -105,12 +105,34 @@ html[dir='rtl'] .DataBinStructureContent {
     width: 150px;
 }
 
+.DataBinRibbon button {
+    width: 35px;
+    height: 35px;
+    position: absolute;
+    right: 200px;
+    top: 1.5px;
+    background-color: #002638;
+    border: none;
+    color: white;
+    font-size: 20px;
+    font-weight: 500;
+    font-family: inherit;
+}
+
+.DataBinRibbon button:hover {
+    font-size: 25px;
+}
+
 html[dir='rtl'] .DataBinTabLang {
     right: calc(100% - 35px)
 }
 
 html[dir='rtl'] .DataBinTabFile {
     right: 160px;
+}
+
+html[dir='rtl'] .DataBinRibbon button {
+    right: calc(100% - 80px);
 }
 
 .DataBinToolbox {
@@ -135,6 +157,7 @@ html[dir='rtl'] .DataBinTabFile {
     position: relative;
     top: -2.5px;
     border: none;
+    font-family: inherit;
 }
 
 .DataBinToolboxCategory.selectedType {
@@ -303,4 +326,118 @@ html[dir='rtl'] .DataBinTabFile {
 
 html[dir='rtl'] .DataBinStructureButton div {
     right: -3.5px;
+}
+
+.DataBinHelpWrapper {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background-color: rgba(53, 106, 253, 0.2);
+}
+
+.DataBinHelp {
+    width: calc(100vw - 130px);
+    height: calc(100vh - 130px);
+    line-height: 150px;
+    font-size: 24px;
+    text-align: center;
+    background-color: #4fb7eb;
+    top: 65px;
+    left: 65px;
+    position: absolute;
+}
+
+.DataBinHelpRibbon {
+    width: 100%;
+    top: 0;
+    position: absolute;
+    height: 50px;
+    background-color: #005e8d;
+    font-weight: bold;
+    font-size: 27.5px;
+    color: white;
+    text-align: center;
+    line-height: 50px;
+}
+
+.DataBinHelpContent {
+    height: calc(100% - 50px);
+    background-color: #ffffff22;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 50px;
+}
+
+.DataBinHelpRibbon>button {
+    right: 5px;
+    top: 5px;
+    position: absolute;
+    border: none;
+    background-color: #001d2c;
+    color: white;
+    font-weight: bold;
+    font-size: 22.5px;
+    width: 30px;
+    height: 30px;
+}
+
+.DataBinHelpContented {
+    width: calc(100% - 200px);
+    height: 100%;
+    left: 200px;
+    position: absolute;
+}
+
+.DataBinHelpStructure {
+    width: 200px;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    background-color: #002638;
+    text-align: left;
+    line-height: 25px;
+    color: white;
+    overflow-x: auto;
+}
+
+.help_name {
+    height: 25px;
+    margin: 0;
+    border: none;
+    color: white;
+    font-family: inherit;
+    font-size: 18px;
+    background-color: #00000000;
+    cursor: pointer;
+}
+
+div.help_indent {
+    margin-left: 20px;
+}
+
+div.help_s_text {
+    position: relative;
+    top: -5px;
+    display: inline;
+}
+
+button.help_switcher {
+    width: 25px;
+    height: 25px;
+    border: none;
+    padding: 0;
+    background-color: #00000000;
+    cursor: pointer;
+}
+
+button.linked {
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 23.5px;
+    font-family: inherit;
+    color: rgb(0, 86, 156);
 }

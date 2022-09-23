@@ -27,6 +27,7 @@
 
     "databin.categories.standard": "Standard",
     "databin.categories.arrays": "Arrays",
+    "databin.categories.miscellaneous": "Miscellaneous",
 
     "databin.crash.ohno": "Oh No!",
     "databin.crash.sorry": "We are so sorry,\nbut DataBin crashed due to an error.",

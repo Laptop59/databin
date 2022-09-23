@@ -41,6 +41,7 @@ class Ribbon extends React.Component {
                             items={this.toFriendly(this.props.languages)}
                             onChange={l => this.props.changeLanguage(l)}
                         />
+                        <button onClick={() => this.props.openHelp()}>?</button>
                     </div>
                 </div>
             </div>

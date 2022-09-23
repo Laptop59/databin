@@ -27,6 +27,7 @@
 
     "databin.categories.standard": "قياسي",
     "databin.categories.arrays": "المصفوفات",
+    "databin.categories.miscellaneous": "متفرقات",
 
     "databin.crash.ohno": "أوه لا!",
     "databin.crash.sorry": "نحن آسفون للغاية ،\nلكن DataBin تعطل بسبب خطأ.",
