@@ -16,7 +16,23 @@ const c = {
             ULong: docAt('ulong'),
             $INFO: docAt('standard')
         },
+        Arrays: docAt('arrays'),
+        Misc$DOT: {
+            Time: docAt('time'),
+            $INFO: docAt('miscellaneous')
+        },
         $INFO: docAt('tags')
+    },
+    File: {
+        Save: docAt('save'),
+        Load: docAt('load'),
+        $INFO: docAt('file')
+    },
+    Components: {
+        Ribbon: docAt('ribbon'),
+        Toolbox: docAt('toolbox'),
+        Structure: docAt('structure'),
+        $INFO: docAt('components')
     }
 }
 

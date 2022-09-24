@@ -5,7 +5,7 @@ A short is a numeric tag DataBin has. It has a id of `0x03`. It can store from `
 
 <sub><sup><span style="color:#9b9f1f;">A short</span></sup></sub>
 
-It occupies 2 bytes.
+It occupies 2 bytes in value.
 It also has an <Link href=".DataBin.Tags.Standard.UShort">unsigned</Link> version.
 
 ## How it's stored

@@ -21,10 +21,11 @@
 11 long_array
 12 float_array
 13 double_array
-14 ubyte_array
-15 ushort_array
-16 uint_array
-17 ulong_array
+14 time
+15 ubyte_array
+16 ushort_array
+17 uint_array
+18 ulong_array
 ```
 ## Yet To Do
 ```

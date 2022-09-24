@@ -8,7 +8,7 @@
  * @readonly
  * @type {number}
  */
-const max_tag_type = 0x14;
+const max_tag_type = 0x18;
 
 /**
  * Enum for tag types
@@ -36,7 +36,11 @@ const tag_types = {
     0x11: "long_array",
     0x12: "float_array",
     0x13: "double_array",
-    0x14: "time"
+    0x14: "time",
+    0x15: "ubyte_array",
+    0x16: "ushort_array",
+    0x17: "uint_array",
+    0x18: "ulong_array",
 }
 
 function tagsToBin(tags, name) {
@@ -236,7 +240,11 @@ function tagToBinValue(tag) {
         case 'int_array':
         case 'long_array':
         case 'float_array':
-        case 'double_array': return arrayToBytes(tag.value, tag.type.split('_array')[0]);
+        case 'double_array':
+        case 'ubyte_array':
+        case 'ushort_array':
+        case 'uint_array':
+        case 'ulong_array': return arrayToBytes(tag.value, tag.type.split('_array')[0]);
         case 'time': return convertToTime(tag.value);
         default:
             throw new TypeError('Could not encode tag with type `' + tag.type + '`.');

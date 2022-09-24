@@ -5,7 +5,7 @@ A float is a precison-numeric tag DataBin has. It has a id of `0x07`. It can sto
 
 <sub><sup><span style="color:#9f1f9f;">A float</span></sup></sub>
 
-It occupies 4 bytes.
+It occupies 4 bytes in value.
 
 ## How it's stored
 ```

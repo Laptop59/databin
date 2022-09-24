@@ -5,7 +5,7 @@ A long is a numeric tag DataBin has. It has a id of `0x05`. It can store from `-
 
 <sub><sup><span style="color:#1b9f9f;">A long</span></sup></sub>
 
-It occupies 8 bytes.
+It occupies 8 bytes in value.
 It also has an <Link href=".DataBin.Tags.Standard.ULong">unsigned</Link> version.
 
 ## How it's stored

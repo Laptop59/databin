@@ -389,6 +389,7 @@ html[dir='rtl'] .DataBinStructureButton div {
     height: 100%;
     left: 200px;
     position: absolute;
+    overflow-y: auto;
 }
 
 .DataBinHelpStructure {
@@ -422,6 +423,7 @@ div.help_s_text {
     position: relative;
     top: -5px;
     display: inline;
+    word-wrap:break-word;
 }
 
 button.help_switcher {
@@ -440,4 +442,13 @@ button.linked {
     font-size: 23.5px;
     font-family: inherit;
     color: rgb(0, 86, 156);
+}
+
+.StructureMore {
+    width: calc(200px + 15px)
+}
+
+.StructureLess {
+    width: calc(100% - 200px - 15px);
+    left: 215px;
 }

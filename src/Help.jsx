@@ -19,6 +19,19 @@ class Help extends React.Component {
         this.setState({error})
     }
 
+    componentDidUpdate() {
+        let structure = document.getElementsByClassName("DataBinHelpStructure")[0];
+        let contented = document.getElementsByClassName("DataBinHelpContented")[0];
+        if (structure)
+        if (structure.scrollHeight > structure.clientHeight) {
+            structure.className = "DataBinHelpStructure StructureMore"
+            contented.className = "DataBinHelpContented StructureLess"
+        } else {
+            structure.className = "DataBinHelpStructure"
+            contented.className = "DataBinHelpContented";
+        }
+    }
+
     render() {
         const content = this.state.error ? (
             <div>
@@ -68,7 +81,7 @@ class Help extends React.Component {
             this.setState({_: "Loading..."});
         }
         item.then(
-            i => i.$INFO.then(j => this.setState({_: <Markdown style={{lineHeight: '25px', scrollY: 'auto'}} options={{
+            i => i.$INFO.then(j => this.setState({_: <Markdown style={{lineHeight: '25px'}} options={{
                 overrides: {
                     Image: {
                         component: Image
@@ -89,7 +102,7 @@ class Help extends React.Component {
     }
 
     renderStructure(s, first, top = "") {
-        let structure = [], inside, opener, minus, ii = 0;
+        let structure = [], inside, opener, minus, ii = 0, l = Object.keys(s).filter(x => x !== "$INFO").length;
         if (first) {
             s = {DataBin: s};
         }
@@ -102,7 +115,7 @@ class Help extends React.Component {
                 inside = this.renderStructure(s[i], false, full);
                 minus = !this.state.closed.includes(full);
                 opener = <>
-                    {this.getSVG((Object.keys(s).length <= ++ii + 1 ? "end" : "") + "inside")}
+                    {this.getSVG((l < ++ii + 1 ? "end" : "") + "inside")}
                     {(typeof s[i] === "object" && !s[i].$ITEM && !(typeof s[i].then === "function")) && <button className="help_switcher" onClick={() => {
                         let {closed} = this.state;
                         if (closed.includes(full)) {
@@ -119,7 +132,7 @@ class Help extends React.Component {
                     } : {}}
                     onClick={() => {
                         this.goto(full);
-                    }}>{!first && opener} <div className="help_s_text">{i}</div></button>
+                    }}>{!first && opener} <div className="help_s_text">{i.replace("$DOT",".")}</div></button>
                     <br/>
                     {
                         first ? inside : <div className="help_indent">{!minus && inside}</div>

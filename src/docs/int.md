@@ -5,7 +5,7 @@ An integer (also called `int`) is a numeric tag DataBin has. It has a id of `0x0
 
 <sub><sup><span style="color:#1b1f9f;">An integer</span></sup></sub>
 
-It occupies 4 bytes.
+It occupies 4 bytes in value.
 It also has an <Link href=".DataBin.Tags.Standard.UInteger">unsigned</Link> version.
 
 ## How it's stored

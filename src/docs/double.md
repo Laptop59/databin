@@ -5,7 +5,7 @@ A double is a precison-numeric tag DataBin has. It has a id of `0x06`. It can st
 
 <sub><sup><span style="color:#9f1f9f;">A double</span></sup></sub>
 
-It occupies 8 bytes.
+It occupies 8 bytes in value.
 
 ## How it's stored
 ```

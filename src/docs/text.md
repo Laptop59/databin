@@ -5,7 +5,7 @@ A text (or `string`) is a string tag DataBin has. It has a id of `0x08`. It can 
 
 <sub><sup><span style="color:#1f9f1f;">A text</span></sup></sub>
 
-It occupies `len`+1 bytes where `len` is the length.
+It occupies `len`+1 bytes in value where `len` is the length.
 
 ## How it's stored
 ```
